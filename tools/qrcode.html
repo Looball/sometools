@@ -62,40 +62,43 @@
       var lastDataUrl = null;
 
       function generate() {
-        var text = inputEl.value.trim();
-        if (!text) {
-          preview.innerHTML = '<span class="preview-placeholder">请输入内容</span>';
-          return;
-        }
-        if (typeof QRCode === 'undefined') {
-          preview.innerHTML = '<span class="preview-placeholder">二维码库未加载（已禁用 CDN，请确认存在 ../vendor/qrcode.min.js）</span>';
-          return;
-        }
-        var size = Math.max(64, Math.min(512, parseInt(sizeEl.value, 10) || 256));
+  var text = inputEl.value.trim();
+  if (!text) {
+    preview.innerHTML = '<span class="preview-placeholder">请输入内容</span>';
+    return;
+  }
 
-        preview.innerHTML = '';
-        if (qrContainer) {
-          qrContainer.innerHTML = '';
-        } else {
-          qrContainer = document.createElement('div');
-          qrContainer.id = 'qrcode';
-          preview.appendChild(qrContainer);
-        }
+  if (typeof QRCode === 'undefined') {
+    preview.innerHTML = '<span class="preview-placeholder">二维码库未加载（请确认存在 ../vendor/qrcode.min.js）</span>';
+    return;
+  }
 
-        try {
-          new QRCode(qrContainer, {
-            text: text,
-            width: size,
-            height: size
-          });
-          setTimeout(function () {
-            var canvas = qrContainer.querySelector('canvas');
-            if (canvas) lastDataUrl = canvas.toDataURL('image/png');
-          }, 50);
-        } catch (e) {
-          preview.innerHTML = '<span class="preview-placeholder">生成失败：' + e.message + '</span>';
-        }
-      }
+  var size = Math.max(64, Math.min(512, parseInt(sizeEl.value, 10) || 256));
+
+  // 清空 preview
+  preview.innerHTML = '';
+
+  // 每次都重新创建容器（最简单最稳定）
+  qrContainer = document.createElement('div');
+  qrContainer.id = 'qrcode';
+  preview.appendChild(qrContainer);
+
+  try {
+    new QRCode(qrContainer, {
+      text: text,
+      width: size,
+      height: size
+    });
+
+    setTimeout(function () {
+      var canvas = qrContainer.querySelector('canvas');
+      if (canvas) lastDataUrl = canvas.toDataURL('image/png');
+    }, 50);
+
+  } catch (e) {
+    preview.innerHTML = '<span class="preview-placeholder">生成失败：' + e.message + '</span>';
+  }
+}
 
       function getDataUrl() {
         var canvas = qrContainer && qrContainer.querySelector('canvas');

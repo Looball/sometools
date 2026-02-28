@@ -270,6 +270,17 @@ body {
   display: block;
 }
 
+/* 预览区 - 固定高度 + 滚动条，图片保持原始尺寸 */
+.preview-box--scroll {
+  height: 320px;
+  overflow: auto;
+}
+
+.preview-box--scroll img {
+  max-width: none;
+  max-height: none;
+}
+
 .preview-placeholder {
   color: var(--text-muted);
   font-size: 0.9rem;
