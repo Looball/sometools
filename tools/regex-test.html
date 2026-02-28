@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>正则测试 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>正则测试</h1>
+    <p class="lead">输入正则表达式与 flags，对文本进行匹配并列出结果。</p>
+
+    <div class="tool-card">
+      <h3>规则</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pattern">Pattern</label>
+          <input type="text" id="pattern" class="w-full" placeholder="例如：\\b\\w+\\b" value="\\b\\w+\\b">
+        </div>
+        <div class="form-group">
+          <label for="flags">Flags</label>
+          <input type="text" id="flags" placeholder="例如：gim" value="g">
+        </div>
+      </div>
+      <button type="button" class="btn" id="btnRun">运行</button>
+      <button type="button" class="btn btn-secondary" id="btnClear" style="margin-left: 0.5rem;">清空</button>
+      <p id="msg" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+
+    <div class="tool-card">
+      <h3>文本</h3>
+      <div class="form-group">
+        <label for="text">待匹配文本</label>
+        <textarea id="text" class="w-full" placeholder="输入或粘贴要匹配的文本">hello world\nfoo_bar 123\n你好，regex!</textarea>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>结果</h3>
+      <div class="form-group">
+        <label for="result">匹配详情</label>
+        <textarea id="result" class="w-full" readonly placeholder="这里显示匹配结果"></textarea>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var patternEl = document.getElementById('pattern');
+      var flagsEl = document.getElementById('flags');
+      var textEl = document.getElementById('text');
+      var resultEl = document.getElementById('result');
+      var msgEl = document.getElementById('msg');
+      var btnRun = document.getElementById('btnRun');
+      var btnClear = document.getElementById('btnClear');
+
+      function setMsg(text) {
+        msgEl.textContent = text || '';
+      }
+
+      function run() {
+        setMsg('');
+        resultEl.value = '';
+        var pattern = patternEl.value || '';
+        var flags = flagsEl.value || '';
+        var text = textEl.value || '';
+
+        if (!pattern) {
+          setMsg('请输入 pattern。');
+          return;
+        }
+        try {
+          var re = new RegExp(pattern, flags);
+          var out = [];
+          var matchCount = 0;
+
+          if (re.global) {
+            var m;
+            while ((m = re.exec(text)) !== null) {
+              matchCount++;
+              out.push('#' + matchCount + '  [' + m.index + ']  ' + JSON.stringify(m[0]));
+              if (m.length > 1) {
+                for (var i = 1; i < m.length; i++) {
+                  out.push('   group ' + i + ': ' + JSON.stringify(m[i]));
+                }
+              }
+              if (m[0] === '') re.lastIndex++;
+              if (matchCount > 5000) {
+                out.push('... 结果过多，已截断');
+                break;
+              }
+            }
+          } else {
+            var single = re.exec(text);
+            if (single) {
+              matchCount = 1;
+              out.push('#1  [' + single.index + ']  ' + JSON.stringify(single[0]));
+              if (single.length > 1) {
+                for (var j = 1; j < single.length; j++) {
+                  out.push('   group ' + j + ': ' + JSON.stringify(single[j]));
+                }
+              }
+            }
+          }
+
+          resultEl.value = '匹配数量：' + matchCount + '\n\n' + (out.join('\n') || '(无匹配)');
+          setMsg('已运行。');
+        } catch (e) {
+          setMsg('正则错误：' + (e && e.message ? e.message : '未知错误'));
+        }
+      }
+
+      btnRun.addEventListener('click', run);
+      btnClear.addEventListener('click', function () {
+        patternEl.value = '';
+        flagsEl.value = '';
+        textEl.value = '';
+        resultEl.value = '';
+        setMsg('');
+      });
+
+      run();
+    })();
+  </script>
+</body>
+</html>

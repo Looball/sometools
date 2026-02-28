@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图片压缩 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>图片压缩</h1>
+    <p class="lead">上传图片，选择质量和格式后压缩并下载。仅在本机处理，不上传服务器。</p>
+
+    <div class="tool-card">
+      <h3>选择图片</h3>
+      <div class="form-group">
+        <input type="file" id="file" accept="image/*">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="quality">压缩质量（1–100）</label>
+          <input type="number" id="quality" value="80" min="1" max="100">
+        </div>
+        <div class="form-group">
+          <label for="format">输出格式</label>
+          <select id="format">
+            <option value="image/jpeg">JPEG</option>
+            <option value="image/webp">WebP</option>
+            <option value="image/png">PNG</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn" id="btnCompress" disabled>压缩并下载</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>预览</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">请选择一张图片</span>
+      </div>
+      <p id="sizeInfo" class="form-group" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var fileEl = document.getElementById('file');
+      var qualityEl = document.getElementById('quality');
+      var formatEl = document.getElementById('format');
+      var btnCompress = document.getElementById('btnCompress');
+      var preview = document.getElementById('preview');
+      var sizeInfo = document.getElementById('sizeInfo');
+
+      var currentBlob = null;
+      var currentFileName = '';
+
+      fileEl.addEventListener('change', function () {
+        var file = fileEl.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+          preview.innerHTML = '<span class="preview-placeholder">请选择一张图片</span>';
+          sizeInfo.textContent = '';
+          btnCompress.disabled = true;
+          return;
+        }
+        currentFileName = file.name.replace(/\.[^.]+$/, '');
+        var url = URL.createObjectURL(file);
+        preview.innerHTML = '<img src="' + url + '" alt="预览">';
+        sizeInfo.textContent = '原图大小: ' + (file.size / 1024).toFixed(1) + ' KB';
+        btnCompress.disabled = false;
+      });
+
+      btnCompress.addEventListener('click', function () {
+        var file = fileEl.files[0];
+        if (!file) return;
+        var quality = Math.max(0, Math.min(1, (parseInt(qualityEl.value, 10) || 80) / 100));
+        var format = formatEl.value;
+        var mime = format;
+        var ext = format === 'image/jpeg' ? 'jpg' : format === 'image/webp' ? 'webp' : 'png';
+
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(function (blob) {
+            if (!blob) return;
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.download = currentFileName + '-compressed.' + ext;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+            sizeInfo.textContent = '原图: ' + (file.size / 1024).toFixed(1) + ' KB → 压缩后: ' + (blob.size / 1024).toFixed(1) + ' KB';
+          }, mime, quality);
+        };
+        img.onerror = function () {
+          preview.innerHTML = '<span class="preview-placeholder">图片加载失败</span>';
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    })();
+  </script>
+</body>
+</html>

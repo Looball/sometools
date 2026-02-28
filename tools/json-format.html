@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSON 格式化 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>JSON 格式化</h1>
+    <p class="lead">支持格式化、压缩（minify），并提示解析错误位置。</p>
+
+    <div class="tool-card">
+      <h3>输入</h3>
+      <div class="form-group">
+        <label for="input">JSON</label>
+        <textarea id="input" class="w-full" placeholder='例如：{"a":1,"b":[true,null,"x"]}'></textarea>
+      </div>
+      <button type="button" class="btn" id="btnFormat">格式化</button>
+      <button type="button" class="btn btn-secondary" id="btnMinify" style="margin-left: 0.5rem;">压缩</button>
+      <button type="button" class="btn btn-secondary" id="btnClear" style="margin-left: 0.5rem;">清空</button>
+      <p id="msg" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+
+    <div class="tool-card">
+      <h3>输出</h3>
+      <div class="form-group">
+        <label for="output">结果</label>
+        <textarea id="output" class="w-full" readonly placeholder="这里显示结果"></textarea>
+      </div>
+      <button type="button" class="btn" id="btnCopy">复制结果</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var inputEl = document.getElementById('input');
+      var outputEl = document.getElementById('output');
+      var msgEl = document.getElementById('msg');
+      var btnFormat = document.getElementById('btnFormat');
+      var btnMinify = document.getElementById('btnMinify');
+      var btnClear = document.getElementById('btnClear');
+      var btnCopy = document.getElementById('btnCopy');
+
+      function setMsg(text) {
+        msgEl.textContent = text || '';
+      }
+
+      function parseJson(text) {
+        return JSON.parse(text);
+      }
+
+      function doFormat(space) {
+        setMsg('');
+        var text = inputEl.value || '';
+        if (!text.trim()) {
+          outputEl.value = '';
+          setMsg('请输入 JSON。');
+          return;
+        }
+        try {
+          var obj = parseJson(text);
+          outputEl.value = JSON.stringify(obj, null, space);
+          setMsg(space ? '已格式化。' : '已压缩。');
+        } catch (e) {
+          outputEl.value = '';
+          setMsg('解析失败：' + (e && e.message ? e.message : '未知错误'));
+        }
+      }
+
+      async function copyOutput() {
+        var v = outputEl.value || '';
+        if (!v) return;
+        try {
+          await navigator.clipboard.writeText(v);
+          setMsg('已复制到剪贴板。');
+        } catch (e) {
+          outputEl.focus();
+          outputEl.select();
+          document.execCommand('copy');
+          setMsg('已复制到剪贴板。');
+        }
+      }
+
+      btnFormat.addEventListener('click', function () { doFormat(2); });
+      btnMinify.addEventListener('click', function () { doFormat(0); });
+      btnClear.addEventListener('click', function () {
+        inputEl.value = '';
+        outputEl.value = '';
+        setMsg('');
+      });
+      btnCopy.addEventListener('click', copyOutput);
+    })();
+  </script>
+</body>
+</html>

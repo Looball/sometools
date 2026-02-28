@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>格式转换 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>格式转换</h1>
+    <p class="lead">将图片转换为 PNG、JPEG 或 WebP 格式并下载。</p>
+
+    <div class="tool-card">
+      <h3>选择图片</h3>
+      <div class="form-group">
+        <input type="file" id="file" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="format">转换为</label>
+        <select id="format">
+          <option value="image/png">PNG</option>
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+      </div>
+      <div class="form-group" id="qualityGroup">
+        <label for="quality">JPEG/WebP 质量（1–100）</label>
+        <input type="number" id="quality" value="90" min="1" max="100">
+      </div>
+      <button type="button" class="btn" id="btnConvert" disabled>转换并下载</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>预览</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">请选择一张图片</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var fileEl = document.getElementById('file');
+      var formatEl = document.getElementById('format');
+      var qualityEl = document.getElementById('quality');
+      var qualityGroup = document.getElementById('qualityGroup');
+      var btnConvert = document.getElementById('btnConvert');
+      var preview = document.getElementById('preview');
+
+      var currentFileName = '';
+
+      function toggleQuality() {
+        var f = formatEl.value;
+        qualityGroup.style.display = (f === 'image/jpeg' || f === 'image/webp') ? '' : 'none';
+      }
+      formatEl.addEventListener('change', toggleQuality);
+      toggleQuality();
+
+      fileEl.addEventListener('change', function () {
+        var file = fileEl.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+          preview.innerHTML = '<span class="preview-placeholder">请选择一张图片</span>';
+          btnConvert.disabled = true;
+          return;
+        }
+        currentFileName = file.name.replace(/\.[^.]+$/, '');
+        var url = URL.createObjectURL(file);
+        preview.innerHTML = '<img src="' + url + '" alt="预览">';
+        btnConvert.disabled = false;
+      });
+
+      btnConvert.addEventListener('click', function () {
+        var file = fileEl.files[0];
+        if (!file) return;
+        var mime = formatEl.value;
+        var ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+        var quality = (mime === 'image/jpeg' || mime === 'image/webp')
+          ? Math.max(0, Math.min(1, (parseInt(qualityEl.value, 10) || 90) / 100))
+          : 1;
+
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          canvas.toBlob(function (blob) {
+            if (!blob) return;
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.download = currentFileName + '.' + ext;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+          }, mime, quality);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    })();
+  </script>
+</body>
+</html>

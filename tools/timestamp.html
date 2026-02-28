@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>时间戳转换 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>时间戳转换</h1>
+    <p class="lead">支持秒/毫秒时间戳与本地时间互转。</p>
+
+    <div class="tool-card">
+      <h3>时间戳 → 时间</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="ts">时间戳</label>
+          <input type="text" id="ts" placeholder="例如：1700000000 或 1700000000000">
+        </div>
+        <div class="form-group">
+          <label for="tsUnit">单位</label>
+          <select id="tsUnit">
+            <option value="auto" selected>自动判断</option>
+            <option value="s">秒</option>
+            <option value="ms">毫秒</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn" id="btnTsToTime">转换</button>
+      <button type="button" class="btn btn-secondary" id="btnNow" style="margin-left: 0.5rem;">填入当前时间戳</button>
+      <p id="msg1" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+      <div class="form-group" style="margin-top: 0.75rem;">
+        <label for="timeOut">结果</label>
+        <textarea id="timeOut" class="w-full" readonly placeholder="本地时间 / UTC 时间"></textarea>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>时间 → 时间戳</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dtLocal">本地时间</label>
+          <input type="datetime-local" id="dtLocal">
+        </div>
+        <div class="form-group">
+          <label for="dtMs">毫秒（可选，0-999）</label>
+          <input type="number" id="dtMs" value="0" min="0" max="999">
+        </div>
+      </div>
+      <button type="button" class="btn" id="btnTimeToTs">转换</button>
+      <p id="msg2" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+      <div class="form-row" style="margin-top: 0.5rem;">
+        <div class="form-group">
+          <label>秒（s）</label>
+          <input type="text" id="outS" readonly>
+        </div>
+        <div class="form-group">
+          <label>毫秒（ms）</label>
+          <input type="text" id="outMs" readonly>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var tsEl = document.getElementById('ts');
+      var tsUnitEl = document.getElementById('tsUnit');
+      var btnTsToTime = document.getElementById('btnTsToTime');
+      var btnNow = document.getElementById('btnNow');
+      var msg1 = document.getElementById('msg1');
+      var timeOut = document.getElementById('timeOut');
+
+      var dtLocal = document.getElementById('dtLocal');
+      var dtMs = document.getElementById('dtMs');
+      var btnTimeToTs = document.getElementById('btnTimeToTs');
+      var msg2 = document.getElementById('msg2');
+      var outS = document.getElementById('outS');
+      var outMs = document.getElementById('outMs');
+
+      function setMsg(el, text) {
+        el.textContent = text || '';
+      }
+
+      function pad2(n) { return String(n).padStart(2, '0'); }
+      function toDatetimeLocalValue(d) {
+        return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+      }
+
+      function tsToTime() {
+        setMsg(msg1, '');
+        timeOut.value = '';
+        var raw = (tsEl.value || '').trim();
+        if (!raw) {
+          setMsg(msg1, '请输入时间戳。');
+          return;
+        }
+        if (!/^-?\d+(\.\d+)?$/.test(raw)) {
+          setMsg(msg1, '时间戳必须是数字。');
+          return;
+        }
+        var unit = tsUnitEl.value;
+        var num = Number(raw);
+        if (!Number.isFinite(num)) {
+          setMsg(msg1, '时间戳超出范围。');
+          return;
+        }
+        var ms;
+        if (unit === 'ms') ms = Math.trunc(num);
+        else if (unit === 's') ms = Math.trunc(num * 1000);
+        else {
+          ms = Math.abs(num) < 1e11 ? Math.trunc(num * 1000) : Math.trunc(num);
+        }
+        var d = new Date(ms);
+        if (Number.isNaN(d.getTime())) {
+          setMsg(msg1, '无法解析该时间戳。');
+          return;
+        }
+        var local = d.toLocaleString();
+        var utc = d.toUTCString();
+        timeOut.value = '本地时间：' + local + '\nUTC：' + utc + '\nISO：' + d.toISOString();
+        setMsg(msg1, '已转换。');
+      }
+
+      function fillNow() {
+        var now = Date.now();
+        tsEl.value = String(now);
+        tsUnitEl.value = 'ms';
+        tsToTime();
+        var d = new Date(now);
+        dtLocal.value = toDatetimeLocalValue(d);
+        dtMs.value = String(d.getMilliseconds());
+      }
+
+      function timeToTs() {
+        setMsg(msg2, '');
+        outS.value = '';
+        outMs.value = '';
+        var v = dtLocal.value;
+        if (!v) {
+          setMsg(msg2, '请选择本地时间。');
+          return;
+        }
+        var d = new Date(v);
+        if (Number.isNaN(d.getTime())) {
+          setMsg(msg2, '时间格式不正确。');
+          return;
+        }
+        var extraMs = Math.max(0, Math.min(999, parseInt(dtMs.value, 10) || 0));
+        d.setMilliseconds(extraMs);
+        var ms = d.getTime();
+        outMs.value = String(ms);
+        outS.value = String(Math.floor(ms / 1000));
+        setMsg(msg2, '已转换（按本地时区解释）。');
+      }
+
+      btnTsToTime.addEventListener('click', tsToTime);
+      btnNow.addEventListener('click', fillNow);
+      btnTimeToTs.addEventListener('click', timeToTs);
+
+      fillNow();
+    })();
+  </script>
+</body>
+</html>

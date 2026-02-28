@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>占位图生成 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>占位图生成</h1>
+    <p class="lead">按宽高、背景色和可选文字生成占位图，用于原型或布局占位。</p>
+
+    <div class="tool-card">
+      <h3>参数</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="width">宽度（px）</label>
+          <input type="number" id="width" value="400" min="1" max="2000">
+        </div>
+        <div class="form-group">
+          <label for="height">高度（px）</label>
+          <input type="number" id="height" value="300" min="1" max="2000">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="bgColor">背景色</label>
+        <input type="text" id="bgColor" value="#cccccc" placeholder="#cccccc 或 rgb(200,200,200)">
+      </div>
+      <div class="form-group">
+        <label for="text">文字（可选）</label>
+        <input type="text" id="text" placeholder="如 400×300">
+      </div>
+      <div class="form-group">
+        <label for="textColor">文字颜色</label>
+        <input type="text" id="textColor" value="#666666" placeholder="#666666">
+      </div>
+      <button type="button" class="btn" id="btnGenerate">生成占位图</button>
+      <button type="button" class="btn btn-secondary" id="btnDownload" style="margin-left: 0.5rem;">下载 PNG</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>预览</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">点击「生成占位图」查看效果</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var widthEl = document.getElementById('width');
+      var heightEl = document.getElementById('height');
+      var bgColorEl = document.getElementById('bgColor');
+      var textEl = document.getElementById('text');
+      var textColorEl = document.getElementById('textColor');
+      var btnGenerate = document.getElementById('btnGenerate');
+      var btnDownload = document.getElementById('btnDownload');
+      var preview = document.getElementById('preview');
+
+      var currentDataUrl = null;
+
+      function draw() {
+        var w = Math.max(1, parseInt(widthEl.value, 10) || 400);
+        var h = Math.max(1, parseInt(heightEl.value, 10) || 300);
+        var bg = bgColorEl.value.trim() || '#cccccc';
+        var textStr = textEl.value.trim();
+        var textColor = textColorEl.value.trim() || '#666666';
+
+        if (w > 2000) w = 2000;
+        if (h > 2000) h = 2000;
+
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, w, h);
+
+        if (textStr) {
+          ctx.fillStyle = textColor;
+          ctx.font = '24px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(textStr, w / 2, h / 2);
+        }
+
+        currentDataUrl = canvas.toDataURL('image/png');
+        preview.innerHTML = '';
+        var img = document.createElement('img');
+        img.src = currentDataUrl;
+        img.alt = '占位图';
+        preview.appendChild(img);
+      }
+
+      function download() {
+        if (!currentDataUrl) {
+          draw();
+        }
+        if (!currentDataUrl) return;
+        var a = document.createElement('a');
+        a.download = 'placeholder-' + widthEl.value + 'x' + heightEl.value + '.png';
+        a.href = currentDataUrl;
+        a.click();
+      }
+
+      btnGenerate.addEventListener('click', draw);
+      btnDownload.addEventListener('click', download);
+
+      // 默认生成一次
+      draw();
+    })();
+  </script>
+</body>
+</html>

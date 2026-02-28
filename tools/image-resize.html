@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>尺寸调整 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>尺寸调整</h1>
+    <p class="lead">上传图片后按宽度、高度或比例缩放，并下载结果。</p>
+
+    <div class="tool-card">
+      <h3>选择图片</h3>
+      <div class="form-group">
+        <input type="file" id="file" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label>
+          <input type="radio" name="mode" value="width" checked> 按宽度
+          <input type="radio" name="mode" value="height" style="margin-left: 1rem;"> 按高度
+          <input type="radio" name="mode" value="both" style="margin-left: 1rem;"> 宽×高
+          <input type="radio" name="mode" value="scale" style="margin-left: 1rem;"> 按比例
+        </label>
+      </div>
+      <div class="form-row">
+        <div class="form-group" id="groupWidth">
+          <label for="width">宽度（px）</label>
+          <input type="number" id="width" value="800" min="1" max="4096">
+        </div>
+        <div class="form-group" id="groupHeight">
+          <label for="height">高度（px）</label>
+          <input type="number" id="height" value="600" min="1" max="4096">
+        </div>
+        <div class="form-group" id="groupScale" style="display: none;">
+          <label for="scale">缩放比例（%）</label>
+          <input type="number" id="scale" value="50" min="1" max="200">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="format">输出格式</label>
+        <select id="format">
+          <option value="image/png">PNG</option>
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+      </div>
+      <button type="button" class="btn" id="btnResize" disabled>调整并下载</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>预览</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">请选择一张图片</span>
+      </div>
+      <p id="sizeInfo" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var fileEl = document.getElementById('file');
+      var widthEl = document.getElementById('width');
+      var heightEl = document.getElementById('height');
+      var scaleEl = document.getElementById('scale');
+      var formatEl = document.getElementById('format');
+      var btnResize = document.getElementById('btnResize');
+      var preview = document.getElementById('preview');
+      var sizeInfo = document.getElementById('sizeInfo');
+      var groupWidth = document.getElementById('groupWidth');
+      var groupHeight = document.getElementById('groupHeight');
+      var groupScale = document.getElementById('groupScale');
+
+      var origW = 0, origH = 0;
+      var currentFileName = '';
+
+      document.querySelectorAll('input[name="mode"]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+          var v = this.value;
+          groupWidth.style.display = v === 'height' || v === 'scale' ? 'none' : '';
+          groupHeight.style.display = v === 'width' || v === 'scale' ? 'none' : '';
+          groupScale.style.display = v === 'scale' ? '' : 'none';
+        });
+      });
+
+      fileEl.addEventListener('change', function () {
+        var file = fileEl.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+          preview.innerHTML = '<span class="preview-placeholder">请选择一张图片</span>';
+          sizeInfo.textContent = '';
+          btnResize.disabled = true;
+          return;
+        }
+        currentFileName = file.name.replace(/\.[^.]+$/, '');
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          origW = img.naturalWidth;
+          origH = img.naturalHeight;
+          widthEl.value = origW;
+          heightEl.value = origH;
+          sizeInfo.textContent = '原始尺寸: ' + origW + ' × ' + origH + ' px';
+          URL.revokeObjectURL(url);
+        };
+        img.src = url;
+        preview.innerHTML = '<img src="' + url + '" alt="预览">';
+        btnResize.disabled = false;
+      });
+
+      function getTargetSize() {
+        var mode = document.querySelector('input[name="mode"]:checked').value;
+        var w = parseInt(widthEl.value, 10) || origW || 800;
+        var h = parseInt(heightEl.value, 10) || origH || 600;
+        if (mode === 'width') {
+          h = Math.round(origH * (w / origW));
+        } else if (mode === 'height') {
+          w = Math.round(origW * (h / origH));
+        } else if (mode === 'scale') {
+          var s = (parseInt(scaleEl.value, 10) || 100) / 100;
+          w = Math.round(origW * s);
+          h = Math.round(origH * s);
+        }
+        return { w: Math.max(1, w), h: Math.max(1, h) };
+      }
+
+      btnResize.addEventListener('click', function () {
+        var file = fileEl.files[0];
+        if (!file) return;
+        var size = getTargetSize();
+        var mime = formatEl.value;
+        var ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+
+        var img = new Image();
+        img.onload = function () {
+          var canvas = document.createElement('canvas');
+          canvas.width = size.w;
+          canvas.height = size.h;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, size.w, size.h);
+          canvas.toBlob(function (blob) {
+            if (!blob) return;
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.download = currentFileName + '-resized.' + ext;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+            sizeInfo.textContent = '原始: ' + origW + '×' + origH + ' → 当前: ' + size.w + '×' + size.h + ' px';
+          }, mime, 0.92);
+        };
+        img.src = URL.createObjectURL(file);
+      });
+    })();
+  </script>
+</body>
+</html>

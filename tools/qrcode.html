@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>二维码生成 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <script src="../vendor/qrcode.min.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>二维码生成</h1>
+    <p class="lead">输入文本或链接，生成二维码图片并下载。</p>
+
+    <div class="tool-card">
+      <h3>内容</h3>
+      <div class="form-group">
+        <label for="input">文本或链接</label>
+        <textarea id="input" placeholder="输入要编码的文字或 URL">https://github.com</textarea>
+      </div>
+      <div class="form-group">
+        <label for="size">尺寸（px）</label>
+        <input type="number" id="size" value="256" min="64" max="512">
+      </div>
+      <button type="button" class="btn" id="btnGenerate">生成二维码</button>
+      <button type="button" class="btn btn-secondary" id="btnDownload" style="margin-left: 0.5rem;">下载 PNG</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>预览</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">点击「生成二维码」查看效果</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var inputEl = document.getElementById('input');
+      var sizeEl = document.getElementById('size');
+      var btnGenerate = document.getElementById('btnGenerate');
+      var btnDownload = document.getElementById('btnDownload');
+      var preview = document.getElementById('preview');
+
+      var qrContainer = null;
+      var lastDataUrl = null;
+
+      function generate() {
+        var text = inputEl.value.trim();
+        if (!text) {
+          preview.innerHTML = '<span class="preview-placeholder">请输入内容</span>';
+          return;
+        }
+        if (typeof QRCode === 'undefined') {
+          preview.innerHTML = '<span class="preview-placeholder">二维码库未加载（已禁用 CDN，请确认存在 ../vendor/qrcode.min.js）</span>';
+          return;
+        }
+        var size = Math.max(64, Math.min(512, parseInt(sizeEl.value, 10) || 256));
+
+        preview.innerHTML = '';
+        if (qrContainer) {
+          qrContainer.innerHTML = '';
+        } else {
+          qrContainer = document.createElement('div');
+          qrContainer.id = 'qrcode';
+          preview.appendChild(qrContainer);
+        }
+
+        try {
+          new QRCode(qrContainer, {
+            text: text,
+            width: size,
+            height: size
+          });
+          setTimeout(function () {
+            var canvas = qrContainer.querySelector('canvas');
+            if (canvas) lastDataUrl = canvas.toDataURL('image/png');
+          }, 50);
+        } catch (e) {
+          preview.innerHTML = '<span class="preview-placeholder">生成失败：' + e.message + '</span>';
+        }
+      }
+
+      function getDataUrl() {
+        var canvas = qrContainer && qrContainer.querySelector('canvas');
+        return canvas ? canvas.toDataURL('image/png') : lastDataUrl;
+      }
+
+      function download() {
+        var text = inputEl.value.trim();
+        if (!text) return;
+        if (!qrContainer || !qrContainer.querySelector('canvas')) {
+          generate();
+          setTimeout(download, 200);
+          return;
+        }
+        var url = getDataUrl();
+        if (!url) return;
+        var a = document.createElement('a');
+        a.download = 'qrcode.png';
+        a.href = url;
+        a.click();
+      }
+
+      btnGenerate.addEventListener('click', generate);
+      btnDownload.addEventListener('click', download);
+
+      generate();
+    })();
+  </script>
+</body>
+</html>

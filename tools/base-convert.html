@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>进制转换 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>进制转换</h1>
+    <p class="lead">支持二/八/十/十六进制互转，使用 BigInt 以支持大整数。</p>
+
+    <div class="tool-card">
+      <h3>输入</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="base">输入进制</label>
+          <select id="base">
+            <option value="2">二进制</option>
+            <option value="8">八进制</option>
+            <option value="10" selected>十进制</option>
+            <option value="16">十六进制</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="num">数字</label>
+          <input type="text" id="num" class="w-full" placeholder="例如：255 / ff / 0b1010">
+        </div>
+      </div>
+      <button type="button" class="btn" id="btnConvert">转换</button>
+      <button type="button" class="btn btn-secondary" id="btnClear" style="margin-left: 0.5rem;">清空</button>
+      <p id="msg" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+
+    <div class="tool-card">
+      <h3>输出</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>二进制</label>
+          <input type="text" id="out2" class="w-full" readonly>
+        </div>
+        <div class="form-group">
+          <label>八进制</label>
+          <input type="text" id="out8" class="w-full" readonly>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>十进制</label>
+          <input type="text" id="out10" class="w-full" readonly>
+        </div>
+        <div class="form-group">
+          <label>十六进制</label>
+          <input type="text" id="out16" class="w-full" readonly>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var baseEl = document.getElementById('base');
+      var numEl = document.getElementById('num');
+      var msgEl = document.getElementById('msg');
+      var btnConvert = document.getElementById('btnConvert');
+      var btnClear = document.getElementById('btnClear');
+      var out2 = document.getElementById('out2');
+      var out8 = document.getElementById('out8');
+      var out10 = document.getElementById('out10');
+      var out16 = document.getElementById('out16');
+
+      function setMsg(text) {
+        msgEl.textContent = text || '';
+      }
+
+      function normalizeInput(s) {
+        return (s || '').trim().toLowerCase().replace(/_/g, '');
+      }
+
+      function parseBigInt(str, base) {
+        var s = normalizeInput(str);
+        if (!s) throw new Error('请输入数字。');
+
+        var sign = '';
+        if (s[0] === '-') {
+          sign = '-';
+          s = s.slice(1);
+        }
+
+        if (s.startsWith('0b')) { base = 2; s = s.slice(2); }
+        else if (s.startsWith('0o')) { base = 8; s = s.slice(2); }
+        else if (s.startsWith('0x')) { base = 16; s = s.slice(2); }
+
+        if (!s) throw new Error('请输入数字。');
+
+        var allow;
+        if (base === 2) allow = /^[01]+$/;
+        else if (base === 8) allow = /^[0-7]+$/;
+        else if (base === 10) allow = /^[0-9]+$/;
+        else if (base === 16) allow = /^[0-9a-f]+$/;
+        else throw new Error('不支持的进制。');
+
+        if (!allow.test(s)) throw new Error('数字与进制不匹配。');
+
+        if (base === 10) return BigInt(sign + s);
+        if (base === 2) return BigInt(sign + '0b' + s);
+        if (base === 8) return BigInt(sign + '0o' + s);
+        return BigInt(sign + '0x' + s);
+      }
+
+      function convert() {
+        setMsg('');
+        out2.value = out8.value = out10.value = out16.value = '';
+        try {
+          var base = parseInt(baseEl.value, 10);
+          var n = parseBigInt(numEl.value, base);
+          var sign = n < 0n ? '-' : '';
+          var abs = n < 0n ? -n : n;
+          out2.value = sign + abs.toString(2);
+          out8.value = sign + abs.toString(8);
+          out10.value = n.toString(10);
+          out16.value = sign + abs.toString(16);
+          setMsg('已转换。');
+        } catch (e) {
+          setMsg('转换失败：' + (e && e.message ? e.message : '未知错误'));
+        }
+      }
+
+      btnConvert.addEventListener('click', convert);
+      btnClear.addEventListener('click', function () {
+        numEl.value = '';
+        out2.value = out8.value = out10.value = out16.value = '';
+        setMsg('');
+      });
+    })();
+  </script>
+</body>
+</html>
