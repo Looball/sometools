@@ -118,6 +118,20 @@
         img.src = URL.createObjectURL(file);
       });
     })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('image-compress');
   </script>
 </body>
 </html>

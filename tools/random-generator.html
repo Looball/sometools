@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>随机数据生成器 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>随机数据生成器</h1>
+    <p class="lead">生成各种随机测试数据，用于开发和测试场景。</p>
+
+    <div class="tool-card">
+      <h3>设置</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="data-type">数据类型</label>
+          <select id="data-type">
+            <option value="name">姓名</option>
+            <option value="email">邮箱</option>
+            <option value="phone">电话号码</option>
+            <option value="address">地址</option>
+            <option value="idcard">身份证号</option>
+            <option value="number">数字</option>
+            <option value="string">字符串</option>
+            <option value="date">日期</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="count">生成数量</label>
+          <input type="number" id="count" value="10" min="1" max="1000">
+        </div>
+      </div>
+      <div class="form-group" id="options-container">
+        <!-- 动态生成的选项 -->
+      </div>
+      <button type="button" class="btn" id="btnGenerate">生成数据</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>结果</h3>
+      <div class="form-group">
+        <textarea id="result" class="w-full" readonly placeholder="这里显示生成的数据"></textarea>
+      </div>
+      <div class="form-row">
+        <button type="button" class="btn" id="btnCopy">复制结果</button>
+        <button type="button" class="btn btn-secondary" id="btnClear" style="margin-left: 0.5rem;">清空</button>
+      </div>
+      <p id="msg" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var dataType = document.getElementById('data-type');
+      var count = document.getElementById('count');
+      var optionsContainer = document.getElementById('options-container');
+      var result = document.getElementById('result');
+      var msg = document.getElementById('msg');
+      var btnGenerate = document.getElementById('btnGenerate');
+      var btnCopy = document.getElementById('btnCopy');
+      var btnClear = document.getElementById('btnClear');
+
+      // 数据生成器
+      var generators = {
+        name: function() {
+          var surnames = ['王', '李', '张', '刘', '陈', '杨', '赵', '黄', '周', '吴'];
+          var names = ['伟', '芳', '娜', '秀英', '敏', '静', '丽', '强', '磊', '军', '洋', '勇', '艳', '杰', '娟', '涛', '明', '超', '秀兰', '霞'];
+          var surname = surnames[Math.floor(Math.random() * surnames.length)];
+          var givenName = names[Math.floor(Math.random() * names.length)];
+          return surname + givenName;
+        },
+        email: function() {
+          var domains = ['gmail.com', 'qq.com', '163.com', '126.com', 'sina.com', 'hotmail.com', 'outlook.com'];
+          var prefix = Math.random().toString(36).substring(2, 10);
+          var domain = domains[Math.floor(Math.random() * domains.length)];
+          return prefix + '@' + domain;
+        },
+        phone: function() {
+          var prefixes = ['130', '131', '132', '133', '134', '135', '136', '137', '138', '139', '150', '151', '152', '153', '155', '156', '157', '158', '159', '186', '187', '188', '189'];
+          var prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+          var suffix = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+          return prefix + suffix;
+        },
+        address: function() {
+          var provinces = ['北京市', '上海市', '广东省', '江苏省', '浙江省', '四川省', '山东省', '河南省', '湖北省', '福建省'];
+          var cities = ['市', '区', '县', '镇'];
+          var streets = ['街道', '路', '道', '巷'];
+          var province = provinces[Math.floor(Math.random() * provinces.length)];
+          var city = Math.floor(Math.random() * 100) + ' ' + cities[Math.floor(Math.random() * cities.length)];
+          var street = Math.floor(Math.random() * 1000) + ' ' + streets[Math.floor(Math.random() * streets.length)];
+          var number = Math.floor(Math.random() * 1000) + '号';
+          var building = '第' + Math.floor(Math.random() * 100) + '栋';
+          var room = Math.floor(Math.random() * 1000) + '室';
+          return province + city + street + number + building + room;
+        },
+        idcard: function() {
+          var areaCodes = ['110000', '120000', '310000', '440000', '320000', '330000', '510000', '370000', '410000', '420000'];
+          var areaCode = areaCodes[Math.floor(Math.random() * areaCodes.length)];
+          var year = (1970 + Math.floor(Math.random() * 50)).toString();
+          var month = (1 + Math.floor(Math.random() * 12)).toString().padStart(2, '0');
+          var day = (1 + Math.floor(Math.random() * 28)).toString().padStart(2, '0');
+          var sequence = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+          var checkDigit = Math.floor(Math.random() * 10).toString();
+          return areaCode + year + month + day + sequence + checkDigit;
+        },
+        number: function(min, max) {
+          return Math.floor(Math.random() * (max - min + 1)) + min;
+        },
+        string: function(length) {
+          var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+          var result = '';
+          for (var i = 0; i < length; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+          }
+          return result;
+        },
+        date: function(start, end) {
+          var startTime = start.getTime();
+          var endTime = end.getTime();
+          var randomTime = startTime + Math.random() * (endTime - startTime);
+          var date = new Date(randomTime);
+          return date.toISOString().split('T')[0];
+        }
+      };
+
+      // 生成选项
+      function generateOptions() {
+        var type = dataType.value;
+        optionsContainer.innerHTML = '';
+
+        switch (type) {
+          case 'number':
+            optionsContainer.innerHTML = `
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="min-number">最小值</label>
+                  <input type="number" id="min-number" value="0">
+                </div>
+                <div class="form-group">
+                  <label for="max-number">最大值</label>
+                  <input type="number" id="max-number" value="1000">
+                </div>
+              </div>
+            `;
+            break;
+          case 'string':
+            optionsContainer.innerHTML = `
+              <div class="form-group">
+                <label for="string-length">字符串长度</label>
+                <input type="number" id="string-length" value="10" min="1" max="100">
+              </div>
+            `;
+            break;
+          case 'date':
+            optionsContainer.innerHTML = `
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="start-date">开始日期</label>
+                  <input type="date" id="start-date" value="1970-01-01">
+                </div>
+                <div class="form-group">
+                  <label for="end-date">结束日期</label>
+                  <input type="date" id="end-date" value="2026-12-31">
+                </div>
+              </div>
+            `;
+            break;
+        }
+      }
+
+      // 生成数据
+      function generateData() {
+        var type = dataType.value;
+        var countValue = parseInt(count.value) || 10;
+        var data = [];
+
+        for (var i = 0; i < countValue; i++) {
+          var item;
+          switch (type) {
+            case 'number':
+              var min = parseInt(document.getElementById('min-number').value) || 0;
+              var max = parseInt(document.getElementById('max-number').value) || 1000;
+              item = generators.number(min, max);
+              break;
+            case 'string':
+              var length = parseInt(document.getElementById('string-length').value) || 10;
+              item = generators.string(length);
+              break;
+            case 'date':
+              var start = new Date(document.getElementById('start-date').value);
+              var end = new Date(document.getElementById('end-date').value);
+              item = generators.date(start, end);
+              break;
+            default:
+              item = generators[type]();
+          }
+          data.push(item);
+        }
+
+        result.value = data.join('\n');
+        msg.textContent = `已生成 ${countValue} 条数据`;
+      }
+
+      // 复制结果
+      async function copyResult() {
+        var v = result.value || '';
+        if (!v) return;
+        try {
+          await navigator.clipboard.writeText(v);
+          msg.textContent = '已复制到剪贴板';
+        } catch (e) {
+          result.focus();
+          result.select();
+          document.execCommand('copy');
+          msg.textContent = '已复制到剪贴板';
+        }
+      }
+
+      // 事件监听
+      dataType.addEventListener('change', generateOptions);
+      btnGenerate.addEventListener('click', generateData);
+      btnCopy.addEventListener('click', copyResult);
+      btnClear.addEventListener('click', function() {
+        result.value = '';
+        msg.textContent = '';
+      });
+
+      // 初始化
+      generateOptions();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('random-generator');
+  </script>
+</body>
+</html>

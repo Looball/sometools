@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图片工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+        <a href="image-tools.html" class="active">图片工具</a>
+        <a href="encode-tools.html">编解码工具</a>
+        <a href="text-tools.html">文本工具</a>
+        <a href="time-tools.html">时间与数字</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>图片工具</h1>
+    <p class="lead">各种图片处理工具，帮助您快速处理和转换图片。</p>
+
+    <section class="tool-category">
+      <h2>图片工具</h2>
+      <ul class="tool-list">
+        <li data-tool="placeholder">
+          <a href="../tools/placeholder.html">
+            <strong>占位图生成</strong>
+            <p class="tool-desc">按宽高、颜色、文字生成占位图</p>
+          </a>
+          <button class="favorite-btn" data-tool="placeholder">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="image-compress">
+          <a href="../tools/image-compress.html">
+            <strong>图片压缩</strong>
+            <p class="tool-desc">压缩 JPEG/PNG，可调质量</p>
+          </a>
+          <button class="favorite-btn" data-tool="image-compress">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="image-resize">
+          <a href="../tools/image-resize.html">
+            <strong>尺寸调整</strong>
+            <p class="tool-desc">按宽高或比例缩放图片</p>
+          </a>
+          <button class="favorite-btn" data-tool="image-resize">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="image-format">
+          <a href="../tools/image-format.html">
+            <strong>格式转换</strong>
+            <p class="tool-desc">转为 PNG / WebP / JPEG</p>
+          </a>
+          <button class="favorite-btn" data-tool="image-format">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="qrcode">
+          <a href="../tools/qrcode.html">
+            <strong>二维码生成</strong>
+            <p class="tool-desc">输入文本生成二维码图片</p>
+          </a>
+          <button class="favorite-btn" data-tool="qrcode">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="color-tool">
+          <a href="../tools/color-tool.html">
+            <strong>颜色工具</strong>
+            <p class="tool-desc">颜色选择与格式转换（RGB/HEX/HSL）</p>
+          </a>
+          <button class="favorite-btn" data-tool="color-tool">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    // 收藏功能
+    const favoriteBtns = document.querySelectorAll('.favorite-btn');
+    
+    // 从本地存储加载收藏状态
+    function loadFavorites() {
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      favoriteBtns.forEach(btn => {
+        const toolId = btn.dataset.tool;
+        if (favorites.includes(toolId)) {
+          btn.classList.add('favorited');
+        }
+      });
+    }
+    
+    // 保存收藏状态到本地存储
+    function saveFavorites(favorites) {
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+    
+    // 处理收藏按钮点击
+    function handleFavoriteClick(e) {
+      const btn = e.target.closest('.favorite-btn');
+      if (!btn) return;
+      
+      const toolId = btn.dataset.tool;
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      
+      if (btn.classList.contains('favorited')) {
+        // 取消收藏
+        btn.classList.remove('favorited');
+        const index = favorites.indexOf(toolId);
+        if (index > -1) {
+          favorites.splice(index, 1);
+        }
+      } else {
+        // 添加收藏
+        btn.classList.add('favorited');
+        favorites.push(toolId);
+      }
+      
+      saveFavorites(favorites);
+    }
+    
+    // 绑定收藏按钮点击事件
+    favoriteBtns.forEach(btn => {
+      btn.addEventListener('click', handleFavoriteClick);
+    });
+    
+    // 初始加载收藏状态
+    loadFavorites();
+  </script>
+</body>
+</html>

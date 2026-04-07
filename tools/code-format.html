@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>代码格式化工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>代码格式化工具</h1>
+    <p class="lead">支持多种编程语言的代码格式化和美化，提高代码可读性。</p>
+
+    <div class="tool-card">
+      <h3>设置</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="language">语言</label>
+          <select id="language">
+            <option value="javascript">JavaScript</option>
+            <option value="css">CSS</option>
+            <option value="html">HTML</option>
+            <option value="xml">XML</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="indent-size">缩进大小</label>
+          <select id="indent-size">
+            <option value="2">2 空格</option>
+            <option value="4">4 空格</option>
+            <option value="tab">Tab</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>输入</h3>
+      <div class="form-group">
+        <textarea id="input" class="w-full" placeholder="请输入要格式化的代码..."></textarea>
+      </div>
+      <button type="button" class="btn" id="btnFormat">格式化</button>
+      <button type="button" class="btn btn-secondary" id="btnMinify" style="margin-left: 0.5rem;">压缩</button>
+      <button type="button" class="btn btn-secondary" id="btnClear" style="margin-left: 0.5rem;">清空</button>
+      <p id="msg" style="margin-top: 0.75rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+
+    <div class="tool-card">
+      <h3>输出</h3>
+      <div class="form-group">
+        <textarea id="output" class="w-full" readonly placeholder="这里显示格式化后的代码"></textarea>
+      </div>
+      <button type="button" class="btn" id="btnCopy">复制结果</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var language = document.getElementById('language');
+      var indentSize = document.getElementById('indent-size');
+      var input = document.getElementById('input');
+      var output = document.getElementById('output');
+      var msg = document.getElementById('msg');
+      var btnFormat = document.getElementById('btnFormat');
+      var btnMinify = document.getElementById('btnMinify');
+      var btnClear = document.getElementById('btnClear');
+      var btnCopy = document.getElementById('btnCopy');
+
+      function setMsg(text) {
+        msg.textContent = text || '';
+      }
+
+      function formatCode() {
+        setMsg('');
+        var code = input.value || '';
+        if (!code.trim()) {
+          output.value = '';
+          setMsg('请输入代码。');
+          return;
+        }
+
+        try {
+          var formattedCode = format(code, language.value, indentSize.value);
+          output.value = formattedCode;
+          setMsg('代码已格式化。');
+        } catch (e) {
+          output.value = '';
+          setMsg('格式化失败：' + (e && e.message ? e.message : '未知错误'));
+        }
+      }
+
+      function minifyCode() {
+        setMsg('');
+        var code = input.value || '';
+        if (!code.trim()) {
+          output.value = '';
+          setMsg('请输入代码。');
+          return;
+        }
+
+        try {
+          var minifiedCode = minify(code, language.value);
+          output.value = minifiedCode;
+          setMsg('代码已压缩。');
+        } catch (e) {
+          output.value = '';
+          setMsg('压缩失败：' + (e && e.message ? e.message : '未知错误'));
+        }
+      }
+
+      function format(code, lang, indent) {
+        switch (lang) {
+          case 'javascript':
+            return formatJavaScript(code, indent);
+          case 'css':
+            return formatCSS(code, indent);
+          case 'html':
+            return formatHTML(code, indent);
+          case 'xml':
+            return formatXML(code, indent);
+          default:
+            return code;
+        }
+      }
+
+      function minify(code, lang) {
+        switch (lang) {
+          case 'javascript':
+            return minifyJavaScript(code);
+          case 'css':
+            return minifyCSS(code);
+          case 'html':
+            return minifyHTML(code);
+          case 'xml':
+            return minifyXML(code);
+          default:
+            return code;
+        }
+      }
+
+      function getIndent(indent) {
+        if (indent === 'tab') {
+          return '\t';
+        }
+        return ' '.repeat(parseInt(indent));
+      }
+
+      function formatJavaScript(code, indent) {
+        var indentStr = getIndent(indent);
+        var result = '';
+        var indentLevel = 0;
+        var inString = false;
+        var stringChar = '';
+        var inComment = false;
+        var inBlockComment = false;
+
+        for (var i = 0; i < code.length; i++) {
+          var char = code[i];
+          var nextChar = code[i + 1];
+
+          if (inBlockComment) {
+            result += char;
+            if (char === '*' && nextChar === '/') {
+              result += nextChar;
+              i++;
+              inBlockComment = false;
+            }
+            continue;
+          }
+
+          if (inComment) {
+            result += char;
+            if (char === '\n') {
+              inComment = false;
+              result += indentStr.repeat(indentLevel);
+            }
+            continue;
+          }
+
+          if (inString) {
+            result += char;
+            if (char === stringChar && code[i - 1] !== '\\') {
+              inString = false;
+            }
+            continue;
+          }
+
+          if (char === '"' || char === "'") {
+            inString = true;
+            stringChar = char;
+            result += char;
+          } else if (char === '/' && nextChar === '/') {
+            inComment = true;
+            result += char + nextChar;
+            i++;
+          } else if (char === '/' && nextChar === '*') {
+            inBlockComment = true;
+            result += char + nextChar;
+            i++;
+          } else if (char === '{' || char === '[' || char === '(') {
+            result += char;
+            indentLevel++;
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char === '}' || char === ']' || char === ')') {
+            indentLevel--;
+            result += '\n' + indentStr.repeat(indentLevel);
+            result += char;
+          } else if (char === ';') {
+            result += char;
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char === ',') {
+            result += char;
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char === '\n') {
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char !== ' ' || (char === ' ' && code[i - 1] !== ' ')) {
+            result += char;
+          }
+        }
+
+        return result.trim();
+      }
+
+      function formatCSS(code, indent) {
+        var indentStr = getIndent(indent);
+        var result = '';
+        var indentLevel = 0;
+        var inString = false;
+        var stringChar = '';
+
+        for (var i = 0; i < code.length; i++) {
+          var char = code[i];
+
+          if (inString) {
+            result += char;
+            if (char === stringChar && code[i - 1] !== '\\') {
+              inString = false;
+            }
+            continue;
+          }
+
+          if (char === '"' || char === "'") {
+            inString = true;
+            stringChar = char;
+            result += char;
+          } else if (char === '{') {
+            result += ' ' + char;
+            indentLevel++;
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char === '}') {
+            indentLevel--;
+            result += '\n' + indentStr.repeat(indentLevel) + char + '\n';
+          } else if (char === ';') {
+            result += char;
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char === '\n') {
+            result += '\n' + indentStr.repeat(indentLevel);
+          } else if (char !== ' ' || (char === ' ' && code[i - 1] !== ' ')) {
+            result += char;
+          }
+        }
+
+        return result.trim();
+      }
+
+      function formatHTML(code, indent) {
+        var indentStr = getIndent(indent);
+        var result = '';
+        var indentLevel = 0;
+        var inTag = false;
+        var inString = false;
+        var stringChar = '';
+        var tagStart = 0;
+
+        for (var i = 0; i < code.length; i++) {
+          var char = code[i];
+          var nextChar = code[i + 1];
+
+          if (inString) {
+            result += char;
+            if (char === stringChar && code[i - 1] !== '\\') {
+              inString = false;
+            }
+            continue;
+          }
+
+          if (char === '<' && !inTag) {
+            inTag = true;
+            tagStart = i;
+            result += '\n' + indentStr.repeat(indentLevel);
+            result += char;
+          } else if (char === '>' && inTag) {
+            inTag = false;
+            result += char;
+            var tag = code.substring(tagStart, i + 1).toLowerCase();
+            if (!tag.includes('</') && !tag.includes('/>') && !tag.includes('<br') && !tag.includes('<img') && !tag.includes('<input')) {
+              indentLevel++;
+            } else if (tag.includes('</')) {
+              indentLevel--;
+            }
+          } else if (char === '"' || char === "'") {
+            inString = true;
+            stringChar = char;
+            result += char;
+          } else {
+            result += char;
+          }
+        }
+
+        return result.trim();
+      }
+
+      function formatXML(code, indent) {
+        return formatHTML(code, indent);
+      }
+
+      function minifyJavaScript(code) {
+        return code
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/\/\/.*$/gm, '')
+          .replace(/\s+/g, ' ')
+          .replace(/\s*([{}:;,])\s*/g, '$1')
+          .trim();
+      }
+
+      function minifyCSS(code) {
+        return code
+          .replace(/\/\*[\s\S]*?\*\//g, '')
+          .replace(/\s+/g, ' ')
+          .replace(/\s*([{}:;,])\s*/g, '$1')
+          .trim();
+      }
+
+      function minifyHTML(code) {
+        return code
+          .replace(/\s+/g, ' ')
+          .replace(/\s*([<>])\s*/g, '$1')
+          .trim();
+      }
+
+      function minifyXML(code) {
+        return minifyHTML(code);
+      }
+
+      async function copyOutput() {
+        var v = output.value || '';
+        if (!v) return;
+        try {
+          await navigator.clipboard.writeText(v);
+          setMsg('已复制到剪贴板。');
+        } catch (e) {
+          output.focus();
+          output.select();
+          document.execCommand('copy');
+          setMsg('已复制到剪贴板。');
+        }
+      }
+
+      btnFormat.addEventListener('click', formatCode);
+      btnMinify.addEventListener('click', minifyCode);
+      btnClear.addEventListener('click', function () {
+        input.value = '';
+        output.value = '';
+        setMsg('');
+      });
+      btnCopy.addEventListener('click', copyOutput);
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('code-format');
+  </script>
+</body>
+</html>

@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>颜色工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>颜色工具</h1>
+    <p class="lead">选择颜色并在不同格式之间转换，包括 RGB、HEX、HSL 等。</p>
+
+    <div class="tool-card">
+      <h3>颜色选择器</h3>
+      <div class="form-group">
+        <label for="color-picker">选择颜色</label>
+        <input type="color" id="color-picker" value="#3498db">
+      </div>
+      <div class="color-preview" id="color-preview"></div>
+    </div>
+
+    <div class="tool-card">
+      <h3>颜色格式转换</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hex-input">HEX</label>
+          <input type="text" id="hex-input" value="#3498db" readonly>
+          <button type="button" class="btn btn-secondary" id="copy-hex">复制</button>
+        </div>
+        <div class="form-group">
+          <label for="rgb-input">RGB</label>
+          <input type="text" id="rgb-input" value="rgb(52, 152, 219)" readonly>
+          <button type="button" class="btn btn-secondary" id="copy-rgb">复制</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="rgba-input">RGBA</label>
+          <input type="text" id="rgba-input" value="rgba(52, 152, 219, 1)" readonly>
+          <button type="button" class="btn btn-secondary" id="copy-rgba">复制</button>
+        </div>
+        <div class="form-group">
+          <label for="hsl-input">HSL</label>
+          <input type="text" id="hsl-input" value="hsl(205, 70%, 53%)" readonly>
+          <button type="button" class="btn btn-secondary" id="copy-hsl">复制</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var colorPicker = document.getElementById('color-picker');
+      var colorPreview = document.getElementById('color-preview');
+      var hexInput = document.getElementById('hex-input');
+      var rgbInput = document.getElementById('rgb-input');
+      var rgbaInput = document.getElementById('rgba-input');
+      var hslInput = document.getElementById('hsl-input');
+      var copyHex = document.getElementById('copy-hex');
+      var copyRgb = document.getElementById('copy-rgb');
+      var copyRgba = document.getElementById('copy-rgba');
+      var copyHsl = document.getElementById('copy-hsl');
+
+      // 初始化颜色预览
+      updateColorPreview(colorPicker.value);
+
+      // 颜色选择器变化事件
+      colorPicker.addEventListener('input', function () {
+        updateColorPreview(this.value);
+      });
+
+      // 复制按钮点击事件
+      copyHex.addEventListener('click', function () {
+        copyToClipboard(hexInput.value);
+      });
+      copyRgb.addEventListener('click', function () {
+        copyToClipboard(rgbInput.value);
+      });
+      copyRgba.addEventListener('click', function () {
+        copyToClipboard(rgbaInput.value);
+      });
+      copyHsl.addEventListener('click', function () {
+        copyToClipboard(hslInput.value);
+      });
+
+      // 更新颜色预览和输入框
+      function updateColorPreview(hex) {
+        // 更新预览
+        colorPreview.style.backgroundColor = hex;
+        colorPreview.style.border = '2px solid #ddd';
+        colorPreview.style.borderRadius = '4px';
+        colorPreview.style.width = '100px';
+        colorPreview.style.height = '100px';
+        colorPreview.style.marginTop = '10px';
+
+        // 转换并更新输入框
+        var rgb = hexToRgb(hex);
+        var hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+
+        hexInput.value = hex;
+        rgbInput.value = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+        rgbaInput.value = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 1)`;
+        hslInput.value = `hsl(${Math.round(hsl.h)}, ${Math.round(hsl.s)}%, ${Math.round(hsl.l)}%)`;
+      }
+
+      // HEX 转 RGB
+      function hexToRgb(hex) {
+        // 移除 # 号
+        hex = hex.replace('#', '');
+
+        // 处理简写形式
+        if (hex.length === 3) {
+          hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+        }
+
+        var bigint = parseInt(hex, 16);
+        var r = (bigint >> 16) & 255;
+        var g = (bigint >> 8) & 255;
+        var b = bigint & 255;
+
+        return { r: r, g: g, b: b };
+      }
+
+      // RGB 转 HSL
+      function rgbToHsl(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        var h, s, l = (max + min) / 2;
+
+        if (max === min) {
+          h = s = 0; // 灰色
+        } else {
+          var d = max - min;
+          s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+
+          switch (max) {
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+          }
+
+          h /= 6;
+        }
+
+        return { h: h * 360, s: s * 100, l: l * 100 };
+      }
+
+      // 复制到剪贴板
+      async function copyToClipboard(text) {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert('已复制到剪贴板');
+        } catch (e) {
+          // 降级方案
+          var textArea = document.createElement('textarea');
+          textArea.value = text;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('已复制到剪贴板');
+        }
+      }
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('color-tool');
+  </script>
+</body>
+</html>

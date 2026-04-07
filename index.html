@@ -13,6 +13,10 @@
       <a href="index.html" class="logo">在线工具集</a>
       <nav class="nav">
         <a href="index.html">首页</a>
+        <a href="categories/image-tools.html">图片工具</a>
+        <a href="categories/encode-tools.html">编解码工具</a>
+        <a href="categories/text-tools.html">文本工具</a>
+        <a href="categories/time-tools.html">时间与数字</a>
         <button id="theme-toggle" class="theme-toggle-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="5"></circle>
@@ -38,6 +42,24 @@
       <input type="text" id="search-input" placeholder="搜索工具..." class="search-input">
       <button class="search-btn">搜索</button>
     </div>
+
+    <section class="tool-category" id="recent-tools-section">
+      <h2>最近使用</h2>
+      <ul class="tool-list" id="recent-tools-list">
+        <li class="no-recent-tools">
+          <p>暂无使用历史</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="tool-category" id="recommended-tools-section">
+      <h2>推荐工具</h2>
+      <ul class="tool-list" id="recommended-tools-list">
+        <li class="no-recommended-tools">
+          <p>根据您的使用习惯推荐工具</p>
+        </li>
+      </ul>
+    </section>
 
     <section class="tool-category">
       <h2>图片工具</h2>
@@ -97,6 +119,17 @@
             </svg>
           </button>
         </li>
+        <li data-tool="color-tool">
+          <a href="tools/color-tool.html">
+            <strong>颜色工具</strong>
+            <p class="tool-desc">颜色选择与格式转换（RGB/HEX/HSL）</p>
+          </a>
+          <button class="favorite-btn" data-tool="color-tool">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
       </ul>
     </section>
 
@@ -136,6 +169,17 @@
             </svg>
           </button>
         </li>
+        <li data-tool="code-format">
+          <a href="tools/code-format.html">
+            <strong>代码格式化</strong>
+            <p class="tool-desc">JavaScript、CSS、HTML、XML 代码格式化</p>
+          </a>
+          <button class="favorite-btn" data-tool="code-format">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
       </ul>
     </section>
 
@@ -164,6 +208,28 @@
             </svg>
           </button>
         </li>
+        <li data-tool="random-generator">
+          <a href="tools/random-generator.html">
+            <strong>随机数据生成</strong>
+            <p class="tool-desc">生成姓名、邮箱、电话等测试数据</p>
+          </a>
+          <button class="favorite-btn" data-tool="random-generator">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="password-generator">
+          <a href="tools/password-generator.html">
+            <strong>密码生成器</strong>
+            <p class="tool-desc">生成安全、随机的密码</p>
+          </a>
+          <button class="favorite-btn" data-tool="password-generator">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
       </ul>
     </section>
 
@@ -187,6 +253,28 @@
             <p class="tool-desc">二/八/十/十六进制（BigInt）</p>
           </a>
           <button class="favorite-btn" data-tool="base-convert">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="unit-converter">
+          <a href="tools/unit-converter.html">
+            <strong>单位转换</strong>
+            <p class="tool-desc">长度、重量、体积、温度等单位转换</p>
+          </a>
+          <button class="favorite-btn" data-tool="unit-converter">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="countdown">
+          <a href="tools/countdown.html">
+            <strong>倒计时工具</strong>
+            <p class="tool-desc">设置目标日期和事件名称，查看剩余时间</p>
+          </a>
+          <button class="favorite-btn" data-tool="countdown">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
             </svg>
@@ -288,6 +376,8 @@
       }
       
       saveFavorites(favorites);
+      // 重新加载推荐工具
+      loadRecommendedTools();
     }
     
     // 绑定收藏按钮点击事件
@@ -341,6 +431,240 @@
     
     // 初始加载主题
     loadTheme();
+
+    // 工具使用历史功能
+    function loadRecentTools() {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      const recentToolsList = document.getElementById('recent-tools-list');
+      const recentToolsSection = document.getElementById('recent-tools-section');
+
+      if (recentTools.length === 0) {
+        recentToolsList.innerHTML = '<li class="no-recent-tools"><p>暂无使用历史</p></li>';
+        recentToolsSection.style.display = 'none';
+        return;
+      }
+
+      recentToolsSection.style.display = 'block';
+
+      // 工具信息映射
+      const toolInfoMap = {
+        'placeholder': { name: '占位图生成', desc: '按宽高、颜色、文字生成占位图', path: 'tools/placeholder.html' },
+        'image-compress': { name: '图片压缩', desc: '压缩 JPEG/PNG，可调质量', path: 'tools/image-compress.html' },
+        'image-resize': { name: '尺寸调整', desc: '按宽高或比例缩放图片', path: 'tools/image-resize.html' },
+        'image-format': { name: '格式转换', desc: '转为 PNG / WebP / JPEG', path: 'tools/image-format.html' },
+        'qrcode': { name: '二维码生成', desc: '输入文本生成二维码图片', path: 'tools/qrcode.html' },
+        'color-tool': { name: '颜色工具', desc: '颜色选择与格式转换（RGB/HEX/HSL）', path: 'tools/color-tool.html' },
+        'base64': { name: 'Base64 编解码', desc: '支持中文与 Emoji', path: 'tools/base64.html' },
+        'url-encode': { name: 'URL 编解码', desc: 'encodeURIComponent / decodeURIComponent', path: 'tools/url-encode.html' },
+        'json-format': { name: 'JSON 格式化', desc: '格式化 / 压缩', path: 'tools/json-format.html' },
+        'regex-test': { name: '正则测试', desc: 'pattern + flags 匹配与结果列表', path: 'tools/regex-test.html' },
+        'text-stats': { name: '字数统计', desc: '字符/单词/行数/字节统计', path: 'tools/text-stats.html' },
+        'timestamp': { name: '时间戳转换', desc: '秒/毫秒与本地时间互转', path: 'tools/timestamp.html' },
+        'base-convert': { name: '进制转换', desc: '二/八/十/十六进制（BigInt）', path: 'tools/base-convert.html' },
+        'unit-converter': { name: '单位转换', desc: '长度、重量、体积、温度等单位转换', path: 'tools/unit-converter.html' },
+        'code-format': { name: '代码格式化', desc: 'JavaScript、CSS、HTML、XML 代码格式化', path: 'tools/code-format.html' },
+        'random-generator': { name: '随机数据生成', desc: '生成姓名、邮箱、电话等测试数据', path: 'tools/random-generator.html' },
+        'password-generator': { name: '密码生成器', desc: '生成安全、随机的密码', path: 'tools/password-generator.html' },
+        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' }
+      };
+
+      recentToolsList.innerHTML = '';
+
+      recentTools.forEach(toolId => {
+        const toolInfo = toolInfoMap[toolId];
+        if (toolInfo) {
+          const li = document.createElement('li');
+          li.dataset.tool = toolId;
+          li.innerHTML = `
+            <a href="${toolInfo.path}">
+              <strong>${toolInfo.name}</strong>
+              <p class="tool-desc">${toolInfo.desc}</p>
+            </a>
+            <button class="favorite-btn" data-tool="${toolId}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </button>
+          `;
+          recentToolsList.appendChild(li);
+        }
+      });
+
+      // 为新添加的收藏按钮绑定事件
+      const newFavoriteBtns = recentToolsList.querySelectorAll('.favorite-btn');
+      newFavoriteBtns.forEach(btn => {
+        btn.addEventListener('click', handleFavoriteClick);
+      });
+
+      // 添加清除历史按钮
+      const clearHistoryBtn = document.createElement('button');
+      clearHistoryBtn.className = 'btn btn-secondary';
+      clearHistoryBtn.textContent = '清除历史记录';
+      clearHistoryBtn.style.marginTop = '10px';
+      clearHistoryBtn.addEventListener('click', function() {
+        localStorage.removeItem('recentTools');
+        loadRecentTools();
+      });
+
+      // 确保只添加一个清除按钮
+      const existingClearBtn = recentToolsSection.querySelector('.btn-secondary');
+      if (!existingClearBtn) {
+        recentToolsSection.appendChild(clearHistoryBtn);
+      }
+    }
+
+    // 初始加载最近使用的工具
+    loadRecentTools();
+
+    // 工具推荐系统
+    function loadRecommendedTools() {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      const favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
+      const recommendedToolsList = document.getElementById('recommended-tools-list');
+      const recommendedToolsSection = document.getElementById('recommended-tools-section');
+
+      // 所有工具列表
+      const allTools = [
+        'placeholder', 'image-compress', 'image-resize', 'image-format', 'qrcode', 'color-tool',
+        'base64', 'url-encode', 'json-format', 'code-format',
+        'regex-test', 'text-stats', 'random-generator', 'password-generator',
+        'timestamp', 'base-convert', 'unit-converter', 'countdown'
+      ];
+
+      // 工具分类
+      const toolCategories = {
+        image: ['placeholder', 'image-compress', 'image-resize', 'image-format', 'qrcode', 'color-tool'],
+        encode: ['base64', 'url-encode', 'json-format', 'code-format'],
+        text: ['regex-test', 'text-stats', 'random-generator', 'password-generator'],
+        time: ['timestamp', 'base-convert', 'unit-converter', 'countdown']
+      };
+
+      // 计算工具权重
+      const toolWeights = {};
+      allTools.forEach(toolId => {
+        toolWeights[toolId] = 0;
+        // 基于最近使用的权重
+        const recentIndex = recentTools.indexOf(toolId);
+        if (recentIndex !== -1) {
+          toolWeights[toolId] += (5 - recentIndex) * 2;
+        }
+        // 基于收藏的权重
+        if (favorites.includes(toolId)) {
+          toolWeights[toolId] += 10;
+        }
+      });
+
+      // 找到用户最常使用的工具类别
+      const categoryWeights = {
+        image: 0,
+        encode: 0,
+        text: 0,
+        time: 0
+      };
+
+      recentTools.forEach(toolId => {
+        for (const category in toolCategories) {
+          if (toolCategories[category].includes(toolId)) {
+            categoryWeights[category] += 1;
+          }
+        }
+      });
+
+      // 找到权重最高的类别
+      let topCategory = 'image';
+      let maxWeight = 0;
+      for (const category in categoryWeights) {
+        if (categoryWeights[category] > maxWeight) {
+          maxWeight = categoryWeights[category];
+          topCategory = category;
+        }
+      }
+
+      // 生成推荐列表
+      const recommendedTools = [];
+      
+      // 首先添加用户收藏的工具（排除已在最近使用中的）
+      const favoriteTools = favorites.filter(toolId => !recentTools.includes(toolId));
+      recommendedTools.push(...favoriteTools);
+
+      // 然后添加同类别中未使用过的工具
+      const categoryTools = toolCategories[topCategory].filter(toolId => 
+        !recentTools.includes(toolId) && !favorites.includes(toolId)
+      );
+      recommendedTools.push(...categoryTools);
+
+      // 最后添加其他类别中未使用过的工具
+      const otherTools = allTools.filter(toolId => 
+        !recentTools.includes(toolId) && 
+        !favorites.includes(toolId) && 
+        !toolCategories[topCategory].includes(toolId)
+      );
+      recommendedTools.push(...otherTools);
+
+      // 限制推荐数量为5个
+      const limitedRecommendations = recommendedTools.slice(0, 5);
+
+      if (limitedRecommendations.length === 0) {
+        recommendedToolsList.innerHTML = '<li class="no-recommended-tools"><p>根据您的使用习惯推荐工具</p></li>';
+        recommendedToolsSection.style.display = 'none';
+        return;
+      }
+
+      recommendedToolsSection.style.display = 'block';
+
+      // 工具信息映射
+      const toolInfoMap = {
+        'placeholder': { name: '占位图生成', desc: '按宽高、颜色、文字生成占位图', path: 'tools/placeholder.html' },
+        'image-compress': { name: '图片压缩', desc: '压缩 JPEG/PNG，可调质量', path: 'tools/image-compress.html' },
+        'image-resize': { name: '尺寸调整', desc: '按宽高或比例缩放图片', path: 'tools/image-resize.html' },
+        'image-format': { name: '格式转换', desc: '转为 PNG / WebP / JPEG', path: 'tools/image-format.html' },
+        'qrcode': { name: '二维码生成', desc: '输入文本生成二维码图片', path: 'tools/qrcode.html' },
+        'color-tool': { name: '颜色工具', desc: '颜色选择与格式转换（RGB/HEX/HSL）', path: 'tools/color-tool.html' },
+        'base64': { name: 'Base64 编解码', desc: '支持中文与 Emoji', path: 'tools/base64.html' },
+        'url-encode': { name: 'URL 编解码', desc: 'encodeURIComponent / decodeURIComponent', path: 'tools/url-encode.html' },
+        'json-format': { name: 'JSON 格式化', desc: '格式化 / 压缩', path: 'tools/json-format.html' },
+        'code-format': { name: '代码格式化', desc: 'JavaScript、CSS、HTML、XML 代码格式化', path: 'tools/code-format.html' },
+        'regex-test': { name: '正则测试', desc: 'pattern + flags 匹配与结果列表', path: 'tools/regex-test.html' },
+        'text-stats': { name: '字数统计', desc: '字符/单词/行数/字节统计', path: 'tools/text-stats.html' },
+        'random-generator': { name: '随机数据生成', desc: '生成姓名、邮箱、电话等测试数据', path: 'tools/random-generator.html' },
+        'password-generator': { name: '密码生成器', desc: '生成安全、随机的密码', path: 'tools/password-generator.html' },
+        'timestamp': { name: '时间戳转换', desc: '秒/毫秒与本地时间互转', path: 'tools/timestamp.html' },
+        'base-convert': { name: '进制转换', desc: '二/八/十/十六进制（BigInt）', path: 'tools/base-convert.html' },
+        'unit-converter': { name: '单位转换', desc: '长度、重量、体积、温度等单位转换', path: 'tools/unit-converter.html' },
+        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' }
+      };
+
+      recommendedToolsList.innerHTML = '';
+
+      limitedRecommendations.forEach(toolId => {
+        const toolInfo = toolInfoMap[toolId];
+        if (toolInfo) {
+          const li = document.createElement('li');
+          li.dataset.tool = toolId;
+          li.innerHTML = `
+            <a href="${toolInfo.path}">
+              <strong>${toolInfo.name}</strong>
+              <p class="tool-desc">${toolInfo.desc}</p>
+            </a>
+            <button class="favorite-btn" data-tool="${toolId}">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+              </svg>
+            </button>
+          `;
+          recommendedToolsList.appendChild(li);
+        }
+      });
+
+      // 为新添加的收藏按钮绑定事件
+      const newFavoriteBtns = recommendedToolsList.querySelectorAll('.favorite-btn');
+      newFavoriteBtns.forEach(btn => {
+        btn.addEventListener('click', handleFavoriteClick);
+      });
+    }
+
+    // 初始加载推荐工具
+    loadRecommendedTools();
   </script>
 </body>
 </html>

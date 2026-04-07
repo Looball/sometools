@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>单位转换工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+<script>(function(s){s.dataset.zone='10684071',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>单位转换工具</h1>
+    <p class="lead">支持长度、重量、体积、温度等多种常用单位的转换。</p>
+
+    <div class="tool-card">
+      <h3>选择单位类型</h3>
+      <div class="form-group">
+        <label for="unit-type">单位类型</label>
+        <select id="unit-type">
+          <option value="length">长度</option>
+          <option value="weight">重量</option>
+          <option value="volume">体积</option>
+          <option value="temperature">温度</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="tool-card">
+      <h3>转换设置</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="from-unit">从</label>
+          <select id="from-unit"></select>
+        </div>
+        <div class="form-group">
+          <label for="to-unit">到</label>
+          <select id="to-unit"></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="input-value">输入值</label>
+          <input type="number" id="input-value" value="1" step="any">
+        </div>
+        <div class="form-group">
+          <label for="result-value">结果</label>
+          <input type="text" id="result-value" readonly>
+          <button type="button" class="btn btn-secondary" id="copy-result">复制</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      var unitType = document.getElementById('unit-type');
+      var fromUnit = document.getElementById('from-unit');
+      var toUnit = document.getElementById('to-unit');
+      var inputValue = document.getElementById('input-value');
+      var resultValue = document.getElementById('result-value');
+      var copyResult = document.getElementById('copy-result');
+
+      // 单位定义
+      var units = {
+        length: {
+          meter: { name: '米', factor: 1 },
+          kilometer: { name: '千米', factor: 0.001 },
+          centimeter: { name: '厘米', factor: 100 },
+          millimeter: { name: '毫米', factor: 1000 },
+          mile: { name: '英里', factor: 0.000621371 },
+          foot: { name: '英尺', factor: 3.28084 },
+          inch: { name: '英寸', factor: 39.3701 }
+        },
+        weight: {
+          kilogram: { name: '千克', factor: 1 },
+          gram: { name: '克', factor: 1000 },
+          ton: { name: '吨', factor: 0.001 },
+          pound: { name: '磅', factor: 2.20462 },
+          ounce: { name: '盎司', factor: 35.274 }
+        },
+        volume: {
+          liter: { name: '升', factor: 1 },
+          milliliter: { name: '毫升', factor: 1000 },
+          cubic_meter: { name: '立方米', factor: 0.001 },
+          gallon: { name: '加仑', factor: 0.264172 },
+          quart: { name: '夸脱', factor: 1.05669 },
+          pint: { name: '品脱', factor: 2.11338 }
+        },
+        temperature: {
+          celsius: { name: '摄氏度', factor: 1 },
+          fahrenheit: { name: '华氏度', factor: 1 },
+          kelvin: { name: '开尔文', factor: 1 }
+        }
+      };
+
+      // 初始化单位选项
+      function initUnitOptions() {
+        var type = unitType.value;
+        var unitList = units[type];
+
+        // 清空现有选项
+        fromUnit.innerHTML = '';
+        toUnit.innerHTML = '';
+
+        // 添加新选项
+        for (var key in unitList) {
+          var option1 = document.createElement('option');
+          option1.value = key;
+          option1.textContent = unitList[key].name;
+          fromUnit.appendChild(option1);
+
+          var option2 = document.createElement('option');
+          option2.value = key;
+          option2.textContent = unitList[key].name;
+          toUnit.appendChild(option2);
+        }
+
+        // 设置默认选项
+        if (type === 'length') {
+          fromUnit.value = 'meter';
+          toUnit.value = 'kilometer';
+        } else if (type === 'weight') {
+          fromUnit.value = 'kilogram';
+          toUnit.value = 'pound';
+        } else if (type === 'volume') {
+          fromUnit.value = 'liter';
+          toUnit.value = 'gallon';
+        } else if (type === 'temperature') {
+          fromUnit.value = 'celsius';
+          toUnit.value = 'fahrenheit';
+        }
+
+        // 执行转换
+        convertUnits();
+      }
+
+      // 执行单位转换
+      function convertUnits() {
+        var type = unitType.value;
+        var from = fromUnit.value;
+        var to = toUnit.value;
+        var value = parseFloat(inputValue.value) || 0;
+
+        var result;
+
+        if (type === 'temperature') {
+          // 温度转换
+          if (from === 'celsius') {
+            if (to === 'fahrenheit') {
+              result = (value * 9/5) + 32;
+            } else if (to === 'kelvin') {
+              result = value + 273.15;
+            } else {
+              result = value;
+            }
+          } else if (from === 'fahrenheit') {
+            if (to === 'celsius') {
+              result = (value - 32) * 5/9;
+            } else if (to === 'kelvin') {
+              result = (value - 32) * 5/9 + 273.15;
+            } else {
+              result = value;
+            }
+          } else if (from === 'kelvin') {
+            if (to === 'celsius') {
+              result = value - 273.15;
+            } else if (to === 'fahrenheit') {
+              result = (value - 273.15) * 9/5 + 32;
+            } else {
+              result = value;
+            }
+          }
+        } else {
+          // 其他单位转换
+          var fromFactor = units[type][from].factor;
+          var toFactor = units[type][to].factor;
+          result = (value / fromFactor) * toFactor;
+        }
+
+        // 显示结果
+        resultValue.value = result.toFixed(6);
+      }
+
+      // 复制结果到剪贴板
+      async function copyResultToClipboard() {
+        try {
+          await navigator.clipboard.writeText(resultValue.value);
+          alert('已复制到剪贴板');
+        } catch (e) {
+          // 降级方案
+          var textArea = document.createElement('textarea');
+          textArea.value = resultValue.value;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+          alert('已复制到剪贴板');
+        }
+      }
+
+      // 事件监听
+      unitType.addEventListener('change', initUnitOptions);
+      fromUnit.addEventListener('change', convertUnits);
+      toUnit.addEventListener('change', convertUnits);
+      inputValue.addEventListener('input', convertUnits);
+      copyResult.addEventListener('click', copyResultToClipboard);
+
+      // 初始化
+      initUnitOptions();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('unit-converter');
+  </script>
+</body>
+</html>
