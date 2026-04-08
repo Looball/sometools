@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>工作日计算器 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>工作日计算器</h1>
+    <p class="lead">计算两个日期之间的工作日数量，排除周末和节假日。</p>
+
+    <div class="tool-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate">开始日期</label>
+          <input type="date" id="startDate" class="w-full">
+        </div>
+        <div class="form-group">
+          <label for="endDate">结束日期</label>
+          <input type="date" id="endDate" class="w-full">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="includeHolidays">是否包含节假日</label>
+        <input type="checkbox" id="includeHolidays">
+        <span class="checkbox-label">包含节假日</span>
+      </div>
+
+      <button type="button" class="btn" id="calculateBtn">计算</button>
+
+      <div class="result-section">
+        <h3>计算结果</h3>
+        <div id="resultDisplay" class="result-display"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const startDate = document.getElementById('startDate');
+      const endDate = document.getElementById('endDate');
+      const includeHolidays = document.getElementById('includeHolidays');
+      const calculateBtn = document.getElementById('calculateBtn');
+      const resultDisplay = document.getElementById('resultDisplay');
+
+      // 设置默认日期
+      function setDefaultDates() {
+        const today = new Date();
+        const nextWeek = new Date(today);
+        nextWeek.setDate(today.getDate() + 7);
+
+        startDate.value = formatDate(today);
+        endDate.value = formatDate(nextWeek);
+      }
+
+      // 格式化日期为 YYYY-MM-DD
+      function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      }
+
+      // 计算工作日数量
+      function calculateWorkdays() {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          alert('请选择有效的日期');
+          return;
+        }
+
+        if (start > end) {
+          alert('开始日期不能晚于结束日期');
+          return;
+        }
+
+        let workdays = 0;
+        const current = new Date(start);
+
+        while (current <= end) {
+          // 检查是否是周末
+          const dayOfWeek = current.getDay();
+          if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+            // 检查是否是节假日
+            if (includeHolidays.checked || !isHoliday(current)) {
+              workdays++;
+            }
+          }
+          // 移动到下一天
+          current.setDate(current.getDate() + 1);
+        }
+
+        // 显示结果
+        const totalDays = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        resultDisplay.innerHTML = `
+          <p><strong>开始日期：</strong>${formatDate(start)}</p>
+          <p><strong>结束日期：</strong>${formatDate(end)}</p>
+          <p><strong>总天数：</strong>${totalDays} 天</p>
+          <p><strong>工作日数量：</strong>${workdays} 天</p>
+        `;
+      }
+
+      // 检查是否是节假日（简化版，仅包含部分中国法定节假日）
+      function isHoliday(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+
+        // 中国法定节假日（简化版）
+        const holidays = [
+          // 元旦
+          { month: 1, day: 1 },
+          // 春节（假设固定在1月1日，实际需要根据农历计算）
+          { month: 1, day: 1 },
+          { month: 1, day: 2 },
+          { month: 1, day: 3 },
+          // 清明节
+          { month: 4, day: 4 },
+          // 劳动节
+          { month: 5, day: 1 },
+          // 端午节
+          { month: 5, day: 5 },
+          // 中秋节
+          { month: 8, day: 15 },
+          // 国庆节
+          { month: 10, day: 1 },
+          { month: 10, day: 2 },
+          { month: 10, day: 3 }
+        ];
+
+        return holidays.some(holiday => holiday.month === month && holiday.day === day);
+      }
+
+      // 事件监听
+      calculateBtn.addEventListener('click', calculateWorkdays);
+      startDate.addEventListener('change', calculateWorkdays);
+      endDate.addEventListener('change', calculateWorkdays);
+      includeHolidays.addEventListener('change', calculateWorkdays);
+
+      // 初始化
+      setDefaultDates();
+      calculateWorkdays();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('workday-calculator');
+  </script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>颜色对比工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>颜色对比工具</h1>
+    <p class="lead">比较颜色对比度，确保可访问性符合WCAG标准。</p>
+
+    <div class="tool-card">
+      <h3>颜色选择</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="color1">颜色1（背景）</label>
+          <input type="color" id="color1" value="#ffffff">
+          <input type="text" id="color1Hex" value="#ffffff" placeholder="#RRGGBB">
+        </div>
+        <div class="form-group">
+          <label for="color2">颜色2（文字）</label>
+          <input type="color" id="color2" value="#000000">
+          <input type="text" id="color2Hex" value="#000000" placeholder="#RRGGBB">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>预览</label>
+        <div id="colorPreview" class="color-preview">
+          <p>示例文本 Sample Text</p>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="analyzeBtn">分析对比度</button>
+
+      <div id="contrastResult" class="form-group" style="margin-top: 1rem; display: none;">
+        <h4>对比度分析</h4>
+        <div class="result-content"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const color1 = document.getElementById('color1');
+      const color1Hex = document.getElementById('color1Hex');
+      const color2 = document.getElementById('color2');
+      const color2Hex = document.getElementById('color2Hex');
+      const colorPreview = document.getElementById('colorPreview');
+      const analyzeBtn = document.getElementById('analyzeBtn');
+      const contrastResult = document.getElementById('contrastResult');
+      const resultContent = contrastResult.querySelector('.result-content');
+
+      // 更新颜色预览
+      function updatePreview() {
+        colorPreview.style.backgroundColor = color1.value;
+        colorPreview.style.color = color2.value;
+      }
+
+      // 颜色转RGB
+      function hexToRgb(hex) {
+        hex = hex.replace('#', '');
+        const bigint = parseInt(hex, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return { r, g, b };
+      }
+
+      // 计算相对亮度
+      function getRelativeLuminance(r, g, b) {
+        const sRGB = [r, g, b].map(c => {
+          c = c / 255;
+          return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+        });
+        return 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+      }
+
+      // 计算对比度
+      function calculateContrast(color1, color2) {
+        const rgb1 = hexToRgb(color1);
+        const rgb2 = hexToRgb(color2);
+        const l1 = getRelativeLuminance(rgb1.r, rgb1.g, rgb1.b);
+        const l2 = getRelativeLuminance(rgb2.r, rgb2.g, rgb2.b);
+        const lighter = Math.max(l1, l2);
+        const darker = Math.min(l1, l2);
+        return (lighter + 0.05) / (darker + 0.05);
+      }
+
+      // 分析对比度
+      function analyzeContrast() {
+        const contrast = calculateContrast(color1.value, color2.value);
+        const roundedContrast = contrast.toFixed(2);
+        
+        let level = 'Fail';
+        let message = '不符合WCAG标准';
+        
+        if (contrast >= 7) {
+          level = 'AAA';
+          message = '符合WCAG AAA级标准（最佳）';
+        } else if (contrast >= 4.5) {
+          level = 'AA';
+          message = '符合WCAG AA级标准（可接受）';
+        } else if (contrast >= 3) {
+          level = 'AA Large';
+          message = '符合WCAG AA级标准（仅适用于大文本）';
+        }
+
+        const resultHTML = `
+          <div class="result-item">
+            <strong>对比度:</strong> ${roundedContrast}:1
+          </div>
+          <div class="result-item">
+            <strong>等级:</strong> ${level}
+          </div>
+          <div class="result-item">
+            <strong>状态:</strong> ${message}
+          </div>
+          <div class="result-item">
+            <strong>建议:</strong> ${contrast < 4.5 ? '考虑使用对比度更高的颜色组合' : '对比度良好'}
+          </div>
+        `;
+
+        resultContent.innerHTML = resultHTML;
+        contrastResult.style.display = 'block';
+      }
+
+      // 事件监听
+      color1.addEventListener('input', function() {
+        color1Hex.value = this.value;
+        updatePreview();
+      });
+
+      color1Hex.addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+          color1.value = this.value;
+          updatePreview();
+        }
+      });
+
+      color2.addEventListener('input', function() {
+        color2Hex.value = this.value;
+        updatePreview();
+      });
+
+      color2Hex.addEventListener('input', function() {
+        if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) {
+          color2.value = this.value;
+          updatePreview();
+        }
+      });
+
+      analyzeBtn.addEventListener('click', analyzeContrast);
+
+      // 初始状态
+      updatePreview();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('color-compare');
+  </script>
+</body>
+</html>

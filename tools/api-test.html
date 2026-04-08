@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API测试工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>API测试工具</h1>
+    <p class="lead">测试RESTful API接口，支持多种请求方法和参数设置。</p>
+
+    <div class="tool-card">
+      <h3>请求设置</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="httpMethod">请求方法</label>
+          <select id="httpMethod">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="DELETE">DELETE</option>
+            <option value="PATCH">PATCH</option>
+            <option value="HEAD">HEAD</option>
+            <option value="OPTIONS">OPTIONS</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="apiUrl">API URL</label>
+          <input type="text" id="apiUrl" placeholder="https://api.example.com/endpoint" class="w-full">
+        </div>
+      </div>
+
+      <h3>请求头</h3>
+      <div id="headersContainer">
+        <div class="form-row header-row">
+          <div class="form-group">
+            <input type="text" class="header-key" placeholder="Key" value="Content-Type">
+          </div>
+          <div class="form-group">
+            <input type="text" class="header-value" placeholder="Value" value="application/json">
+          </div>
+          <button type="button" class="btn btn-secondary remove-header">删除</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-secondary" id="addHeader">添加请求头</button>
+
+      <h3>请求体</h3>
+      <div class="form-group">
+        <label for="requestBody">请求体 (JSON)</label>
+        <textarea id="requestBody" class="w-full" rows="6" placeholder='{"key": "value"}'></textarea>
+      </div>
+
+      <button type="button" class="btn" id="sendRequest">发送请求</button>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="response">响应结果</label>
+        <textarea id="response" class="w-full" rows="10" readonly placeholder="响应结果将显示在这里"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="responseHeaders">响应头</label>
+        <textarea id="responseHeaders" class="w-full" rows="4" readonly placeholder="响应头将显示在这里"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="responseTime">响应时间</label>
+        <input type="text" id="responseTime" readonly placeholder="响应时间将显示在这里">
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const httpMethod = document.getElementById('httpMethod');
+      const apiUrl = document.getElementById('apiUrl');
+      const headersContainer = document.getElementById('headersContainer');
+      const addHeaderBtn = document.getElementById('addHeader');
+      const requestBody = document.getElementById('requestBody');
+      const sendRequestBtn = document.getElementById('sendRequest');
+      const response = document.getElementById('response');
+      const responseHeaders = document.getElementById('responseHeaders');
+      const responseTime = document.getElementById('responseTime');
+
+      // 添加请求头
+      function addHeader() {
+        const headerRow = document.createElement('div');
+        headerRow.className = 'form-row header-row';
+        headerRow.innerHTML = `
+          <div class="form-group">
+            <input type="text" class="header-key" placeholder="Key">
+          </div>
+          <div class="form-group">
+            <input type="text" class="header-value" placeholder="Value">
+          </div>
+          <button type="button" class="btn btn-secondary remove-header">删除</button>
+        `;
+        headersContainer.appendChild(headerRow);
+
+        // 添加删除事件
+        const removeBtn = headerRow.querySelector('.remove-header');
+        removeBtn.addEventListener('click', function() {
+          headerRow.remove();
+        });
+      }
+
+      // 获取请求头
+      function getHeaders() {
+        const headers = {};
+        const headerRows = document.querySelectorAll('.header-row');
+        headerRows.forEach(row => {
+          const key = row.querySelector('.header-key').value;
+          const value = row.querySelector('.header-value').value;
+          if (key && value) {
+            headers[key] = value;
+          }
+        });
+        return headers;
+      }
+
+      // 发送请求
+      async function sendRequest() {
+        const url = apiUrl.value;
+        if (!url) {
+          alert('请输入API URL');
+          return;
+        }
+
+        const method = httpMethod.value;
+        const headers = getHeaders();
+        const body = requestBody.value ? JSON.parse(requestBody.value) : null;
+
+        response.value = '发送请求中...';
+        responseHeaders.value = '';
+        responseTime.value = '';
+
+        const startTime = Date.now();
+
+        try {
+          const fetchOptions = {
+            method: method,
+            headers: headers
+          };
+
+          if (body && (method === 'POST' || method === 'PUT' || method === 'PATCH')) {
+            fetchOptions.body = JSON.stringify(body);
+          }
+
+          const res = await fetch(url, fetchOptions);
+          const endTime = Date.now();
+
+          // 获取响应头
+          const headersObj = {};
+          res.headers.forEach((value, key) => {
+            headersObj[key] = value;
+          });
+
+          // 获取响应体
+          let responseData;
+          try {
+            responseData = await res.json();
+          } catch (e) {
+            responseData = await res.text();
+          }
+
+          // 显示结果
+          response.value = JSON.stringify(responseData, null, 2);
+          responseHeaders.value = JSON.stringify(headersObj, null, 2);
+          responseTime.value = `${endTime - startTime}ms`;
+        } catch (error) {
+          response.value = `错误: ${error.message}`;
+          responseTime.value = '请求失败';
+        }
+      }
+
+      // 事件监听
+      addHeaderBtn.addEventListener('click', addHeader);
+      sendRequestBtn.addEventListener('click', sendRequest);
+
+      // 初始删除事件
+      document.querySelectorAll('.remove-header').forEach(btn => {
+        btn.addEventListener('click', function() {
+          this.closest('.header-row').remove();
+        });
+      });
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('api-test');
+  </script>
+</body>
+</html>

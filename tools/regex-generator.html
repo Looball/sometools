@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>正则表达式生成器 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>正则表达式生成器</h1>
+    <p class="lead">根据需求生成正则表达式，支持多种常见模式。</p>
+
+    <div class="tool-card">
+      <h3>正则表达式类型</h3>
+      <div class="form-group">
+        <label for="regexType">选择类型</label>
+        <select id="regexType" class="w-full">
+          <option value="custom">自定义</option>
+          <option value="email">电子邮件</option>
+          <option value="phone">电话号码</option>
+          <option value="url">URL地址</option>
+          <option value="ip">IP地址</option>
+          <option value="date">日期</option>
+          <option value="time">时间</option>
+          <option value="password">密码</option>
+        </select>
+      </div>
+
+      <!-- 自定义选项 -->
+      <div id="customOptions" class="form-group">
+        <label for="customPattern">正则表达式模式</label>
+        <input type="text" id="customPattern" placeholder="例如：^[a-zA-Z0-9]+$">
+      </div>
+
+      <!-- 电子邮件选项 -->
+      <div id="emailOptions" class="form-group" style="display: none;">
+        <label>
+          <input type="checkbox" id="emailStrict"> 严格模式
+        </label>
+      </div>
+
+      <!-- 电话号码选项 -->
+      <div id="phoneOptions" class="form-group" style="display: none;">
+        <label>
+          <input type="checkbox" id="phoneInternational"> 支持国际号码
+        </label>
+      </div>
+
+      <!-- 密码选项 -->
+      <div id="passwordOptions" class="form-group" style="display: none;">
+        <label>
+          <input type="checkbox" id="passwordUpper"> 包含大写字母
+        </label>
+        <label>
+          <input type="checkbox" id="passwordLower"> 包含小写字母
+        </label>
+        <label>
+          <input type="checkbox" id="passwordNumber"> 包含数字
+        </label>
+        <label>
+          <input type="checkbox" id="passwordSpecial"> 包含特殊字符
+        </label>
+        <div class="form-group">
+          <label for="passwordLength">最小长度</label>
+          <input type="number" id="passwordLength" value="8" min="1">
+        </div>
+      </div>
+
+      <h3>测试文本</h3>
+      <div class="form-group">
+        <label for="testText">输入测试文本</label>
+        <textarea id="testText" class="w-full" rows="4" placeholder="输入要测试的文本"></textarea>
+      </div>
+
+      <button type="button" class="btn" id="generateBtn">生成正则表达式</button>
+      <button type="button" class="btn btn-secondary" id="testBtn">测试匹配</button>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="generatedRegex">生成的正则表达式</label>
+        <textarea id="generatedRegex" class="w-full" readonly placeholder="生成的正则表达式将显示在这里"></textarea>
+      </div>
+
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="matchResult">匹配结果</label>
+        <textarea id="matchResult" class="w-full" rows="4" readonly placeholder="匹配结果将显示在这里"></textarea>
+      </div>
+
+      <button type="button" class="btn btn-secondary" id="copyBtn">复制正则表达式</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const regexType = document.getElementById('regexType');
+      const customOptions = document.getElementById('customOptions');
+      const emailOptions = document.getElementById('emailOptions');
+      const phoneOptions = document.getElementById('phoneOptions');
+      const passwordOptions = document.getElementById('passwordOptions');
+      const customPattern = document.getElementById('customPattern');
+      const emailStrict = document.getElementById('emailStrict');
+      const phoneInternational = document.getElementById('phoneInternational');
+      const passwordUpper = document.getElementById('passwordUpper');
+      const passwordLower = document.getElementById('passwordLower');
+      const passwordNumber = document.getElementById('passwordNumber');
+      const passwordSpecial = document.getElementById('passwordSpecial');
+      const passwordLength = document.getElementById('passwordLength');
+      const testText = document.getElementById('testText');
+      const generateBtn = document.getElementById('generateBtn');
+      const testBtn = document.getElementById('testBtn');
+      const generatedRegex = document.getElementById('generatedRegex');
+      const matchResult = document.getElementById('matchResult');
+      const copyBtn = document.getElementById('copyBtn');
+
+      // 显示/隐藏选项
+      function toggleOptions() {
+        const type = regexType.value;
+        customOptions.style.display = 'none';
+        emailOptions.style.display = 'none';
+        phoneOptions.style.display = 'none';
+        passwordOptions.style.display = 'none';
+
+        switch (type) {
+          case 'custom':
+            customOptions.style.display = 'block';
+            break;
+          case 'email':
+            emailOptions.style.display = 'block';
+            break;
+          case 'phone':
+            phoneOptions.style.display = 'block';
+            break;
+          case 'password':
+            passwordOptions.style.display = 'block';
+            break;
+        }
+      }
+
+      // 生成正则表达式
+      function generateRegex() {
+        const type = regexType.value;
+        let pattern = '';
+
+        switch (type) {
+          case 'custom':
+            pattern = customPattern.value;
+            break;
+          case 'email':
+            if (emailStrict.checked) {
+              pattern = '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$';
+            } else {
+              pattern = '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}';
+            }
+            break;
+          case 'phone':
+            if (phoneInternational.checked) {
+              pattern = '\\+?[0-9]{1,3}[-. ]?\?[0-9]{1,4}\?[-. ]?[0-9]{1,4}[-. ]?[0-9]{1,9}';
+            } else {
+              pattern = '1[3-9]\\d{9}';
+            }
+            break;
+          case 'url':
+            pattern = 'https?:\\/\\/(www\\.)?[-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_\\+.~#?&//=]*)';
+            break;
+          case 'ip':
+            pattern = '((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)';
+            break;
+          case 'date':
+            pattern = '\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])';
+            break;
+          case 'time':
+            pattern = '([01]?\\d|2[0-3]):[0-5]\\d(:[0-5]\\d)?';
+            break;
+          case 'password':
+            const length = passwordLength.value;
+            let chars = '';
+            if (passwordUpper.checked) chars += 'A-Z';
+            if (passwordLower.checked) chars += 'a-z';
+            if (passwordNumber.checked) chars += '0-9';
+            if (passwordSpecial.checked) chars += '\\W_';
+            if (chars) {
+              pattern = `^[${chars}]{${length},}$`;
+            } else {
+              pattern = `.{${length},}`;
+            }
+            break;
+        }
+
+        generatedRegex.value = pattern;
+      }
+
+      // 测试匹配
+      function testMatch() {
+        const pattern = generatedRegex.value;
+        const text = testText.value;
+
+        if (!pattern) {
+          matchResult.value = '请先生成正则表达式';
+          return;
+        }
+
+        try {
+          const regex = new RegExp(pattern, 'g');
+          const matches = text.match(regex);
+          if (matches) {
+            matchResult.value = `匹配到 ${matches.length} 个结果:\n${matches.join('\n')}`;
+          } else {
+            matchResult.value = '没有匹配结果';
+          }
+        } catch (error) {
+          matchResult.value = `正则表达式错误: ${error.message}`;
+        }
+      }
+
+      // 复制正则表达式
+      function copyRegex() {
+        generatedRegex.select();
+        document.execCommand('copy');
+        alert('正则表达式已复制到剪贴板');
+      }
+
+      // 事件监听
+      regexType.addEventListener('change', toggleOptions);
+      generateBtn.addEventListener('click', generateRegex);
+      testBtn.addEventListener('click', testMatch);
+      copyBtn.addEventListener('click', copyRegex);
+
+      // 初始状态
+      toggleOptions();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('regex-generator');
+  </script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>端口检测 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>端口检测</h1>
+    <p class="lead">检测服务器端口是否开放，支持多种协议。</p>
+
+    <div class="tool-card">
+      <h3>端口检测</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="hostname">主机名/IP地址</label>
+          <input type="text" id="hostname" placeholder="例如：example.com 或 192.168.1.1">
+        </div>
+        <div class="form-group">
+          <label for="port">端口</label>
+          <input type="number" id="port" placeholder="例如：80、443、22">
+        </div>
+        <div class="form-group">
+          <label for="protocol">协议</label>
+          <select id="protocol">
+            <option value="tcp">TCP</option>
+            <option value="udp">UDP</option>
+          </select>
+        </div>
+      </div>
+      <button type="button" class="btn" id="checkBtn">检测</button>
+
+      <div id="result" class="form-group" style="margin-top: 1rem; display: none;">
+        <h4>检测结果</h4>
+        <div class="result-content"></div>
+      </div>
+
+      <div id="errorMsg" class="form-group" style="margin-top: 1rem; display: none;">
+        <p class="error-message"></p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const hostname = document.getElementById('hostname');
+      const port = document.getElementById('port');
+      const protocol = document.getElementById('protocol');
+      const checkBtn = document.getElementById('checkBtn');
+      const result = document.getElementById('result');
+      const resultContent = result.querySelector('.result-content');
+      const errorMsg = document.getElementById('errorMsg');
+      const errorMessage = errorMsg.querySelector('.error-message');
+
+      // 检测端口
+      function checkPort() {
+        const host = hostname.value.trim();
+        const portNum = parseInt(port.value);
+        const proto = protocol.value;
+
+        if (!host) {
+          displayError('请输入主机名或IP地址');
+          return;
+        }
+
+        if (isNaN(portNum) || portNum < 1 || portNum > 65535) {
+          displayError('请输入有效的端口号（1-65535）');
+          return;
+        }
+
+        result.style.display = 'block';
+        errorMsg.style.display = 'none';
+        resultContent.innerHTML = '<p>正在检测中...</p>';
+
+        // 注意：由于浏览器的安全限制，前端无法直接进行TCP/UDP连接
+        // 这里使用WebSocket作为替代方案（仅支持TCP）
+        if (proto === 'tcp') {
+          checkTcpPort(host, portNum);
+        } else {
+          displayError('UDP端口检测在浏览器中无法直接实现');
+        }
+      }
+
+      // 检测TCP端口（使用WebSocket）
+      function checkTcpPort(host, portNum) {
+        // WebSocket只能连接到WebSocket服务
+        // 对于普通TCP端口，我们可以尝试连接并看是否成功
+        // 注意：这种方法只能检测某些端口，不是所有端口都适用
+        const ws = new WebSocket(`ws://${host}:${portNum}`);
+        const timeout = setTimeout(() => {
+          ws.close();
+          displayResult(false, `端口 ${portNum} 可能未开放或连接超时`);
+        }, 3000);
+
+        ws.onopen = function() {
+          clearTimeout(timeout);
+          ws.close();
+          displayResult(true, `端口 ${portNum} 开放`);
+        };
+
+        ws.onerror = function() {
+          clearTimeout(timeout);
+          displayResult(false, `端口 ${portNum} 未开放或连接失败`);
+        };
+      }
+
+      // 显示检测结果
+      function displayResult(isOpen, message) {
+        result.style.display = 'block';
+        errorMsg.style.display = 'none';
+
+        const statusClass = isOpen ? 'status-open' : 'status-closed';
+        const statusText = isOpen ? '开放' : '未开放';
+
+        const resultHTML = `
+          <div class="result-item">
+            <strong>主机:</strong> ${hostname.value.trim()}
+          </div>
+          <div class="result-item">
+            <strong>端口:</strong> ${port.value}
+          </div>
+          <div class="result-item">
+            <strong>协议:</strong> ${protocol.value.toUpperCase()}
+          </div>
+          <div class="result-item ${statusClass}">
+            <strong>状态:</strong> ${statusText}
+          </div>
+          <div class="result-item">
+            <strong>信息:</strong> ${message}
+          </div>
+        `;
+
+        resultContent.innerHTML = resultHTML;
+      }
+
+      // 显示错误信息
+      function displayError(message) {
+        errorMsg.style.display = 'block';
+        result.style.display = 'none';
+        errorMessage.textContent = message;
+      }
+
+      // 事件监听
+      checkBtn.addEventListener('click', checkPort);
+
+      // 回车键检测
+      port.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          checkBtn.click();
+        }
+      });
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('port-check');
+  </script>
+</body>
+</html>

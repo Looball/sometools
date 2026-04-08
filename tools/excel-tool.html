@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel工具 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>Excel工具</h1>
+    <p class="lead">Excel文件处理和分析工具，支持读取和分析Excel数据。</p>
+
+    <div class="tool-card">
+      <h3>Excel文件</h3>
+      <div class="form-group">
+        <label for="excelFile">上传Excel文件</label>
+        <input type="file" id="excelFile" accept=".xlsx,.xls">
+      </div>
+
+      <div id="sheetSelector" class="form-group" style="display: none;">
+        <label for="sheetName">选择工作表</label>
+        <select id="sheetName"></select>
+      </div>
+
+      <div id="dataPreview" class="form-group" style="display: none;">
+        <h4>数据预览</h4>
+        <div class="table-container" style="overflow-x: auto;">
+          <table id="dataTable" class="data-table"></table>
+        </div>
+      </div>
+
+      <div id="dataAnalysis" class="form-group" style="display: none;">
+        <h4>数据分析</h4>
+        <div id="analysisResults" class="analysis-results"></div>
+      </div>
+
+      <div class="form-group" style="display: none;" id="exportOptions">
+        <h4>导出选项</h4>
+        <button type="button" class="btn btn-secondary" id="exportCsv">导出为CSV</button>
+        <button type="button" class="btn btn-secondary" id="exportJson">导出为JSON</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const excelFile = document.getElementById('excelFile');
+      const sheetSelector = document.getElementById('sheetSelector');
+      const sheetName = document.getElementById('sheetName');
+      const dataPreview = document.getElementById('dataPreview');
+      const dataTable = document.getElementById('dataTable');
+      const dataAnalysis = document.getElementById('dataAnalysis');
+      const analysisResults = document.getElementById('analysisResults');
+      const exportOptions = document.getElementById('exportOptions');
+      const exportCsv = document.getElementById('exportCsv');
+      const exportJson = document.getElementById('exportJson');
+
+      let workbook;
+      let currentSheetData;
+
+      // 处理文件上传
+      excelFile.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            workbook = XLSX.read(data, { type: 'array' });
+            
+            // 显示工作表选择器
+            sheetSelector.style.display = 'block';
+            sheetName.innerHTML = '';
+            
+            workbook.SheetNames.forEach(sheet => {
+              const option = document.createElement('option');
+              option.value = sheet;
+              option.textContent = sheet;
+              sheetName.appendChild(option);
+            });
+
+            // 自动选择第一个工作表
+            if (workbook.SheetNames.length > 0) {
+              loadSheet(workbook.SheetNames[0]);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        }
+      });
+
+      // 工作表选择变化
+      sheetName.addEventListener('change', function() {
+        loadSheet(this.value);
+      });
+
+      // 加载工作表数据
+      function loadSheet(sheetName) {
+        const worksheet = workbook.Sheets[sheetName];
+        currentSheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        // 显示数据预览
+        dataPreview.style.display = 'block';
+        renderTable(currentSheetData);
+        
+        // 显示数据分析
+        dataAnalysis.style.display = 'block';
+        analyzeData(currentSheetData);
+        
+        // 显示导出选项
+        exportOptions.style.display = 'block';
+      }
+
+      // 渲染表格
+      function renderTable(data) {
+        dataTable.innerHTML = '';
+        
+        data.forEach((row, rowIndex) => {
+          const tr = document.createElement('tr');
+          row.forEach((cell, cellIndex) => {
+            const td = document.createElement(rowIndex === 0 ? 'th' : 'td');
+            td.textContent = cell || '';
+            tr.appendChild(td);
+          });
+          dataTable.appendChild(tr);
+        });
+      }
+
+      // 分析数据
+      function analyzeData(data) {
+        analysisResults.innerHTML = '';
+        
+        if (data.length === 0) return;
+        
+        const rowCount = data.length;
+        const columnCount = data[0].length;
+        const headerRow = data[0];
+        
+        const analysisHTML = `
+          <div class="analysis-item">
+            <strong>行数:</strong> ${rowCount}
+          </div>
+          <div class="analysis-item">
+            <strong>列数:</strong> ${columnCount}
+          </div>
+          <div class="analysis-item">
+            <strong>表头:</strong> ${headerRow.join(', ')}
+          </div>
+        `;
+        
+        analysisResults.innerHTML = analysisHTML;
+      }
+
+      // 导出为CSV
+      exportCsv.addEventListener('click', function() {
+        if (!currentSheetData) return;
+        
+        const csvContent = currentSheetData.map(row => row.join(',')).join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      // 导出为JSON
+      exportJson.addEventListener('click', function() {
+        if (!currentSheetData) return;
+        
+        const headers = currentSheetData[0];
+        const jsonData = [];
+        
+        for (let i = 1; i < currentSheetData.length; i++) {
+          const row = currentSheetData[i];
+          const rowObj = {};
+          headers.forEach((header, index) => {
+            rowObj[header] = row[index];
+          });
+          jsonData.push(rowObj);
+        }
+        
+        const jsonContent = JSON.stringify(jsonData, null, 2);
+        const blob = new Blob([jsonContent], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('excel-tool');
+  </script>
+</body>
+</html>

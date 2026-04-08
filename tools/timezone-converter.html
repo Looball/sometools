@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>时区转换 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>时区转换</h1>
+    <p class="lead">在不同时区之间转换时间。</p>
+
+    <div class="tool-card">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sourceTime">源时间</label>
+          <input type="datetime-local" id="sourceTime" class="w-full">
+        </div>
+        <div class="form-group">
+          <label for="sourceTimezone">源时区</label>
+          <select id="sourceTimezone" class="w-full">
+            <option value="Asia/Shanghai">中国标准时间 (UTC+8)</option>
+            <option value="America/New_York">美国东部时间 (UTC-5)</option>
+            <option value="America/Los_Angeles">美国西部时间 (UTC-8)</option>
+            <option value="Europe/London">英国标准时间 (UTC+0)</option>
+            <option value="Europe/Paris">欧洲中部时间 (UTC+1)</option>
+            <option value="Asia/Tokyo">日本标准时间 (UTC+9)</option>
+            <option value="Asia/Seoul">韩国标准时间 (UTC+9)</option>
+            <option value="Australia/Sydney">澳大利亚东部时间 (UTC+10)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="targetTime">目标时间</label>
+          <input type="datetime-local" id="targetTime" class="w-full" readonly>
+        </div>
+        <div class="form-group">
+          <label for="targetTimezone">目标时区</label>
+          <select id="targetTimezone" class="w-full">
+            <option value="America/New_York">美国东部时间 (UTC-5)</option>
+            <option value="America/Los_Angeles">美国西部时间 (UTC-8)</option>
+            <option value="Europe/London">英国标准时间 (UTC+0)</option>
+            <option value="Europe/Paris">欧洲中部时间 (UTC+1)</option>
+            <option value="Asia/Shanghai">中国标准时间 (UTC+8)</option>
+            <option value="Asia/Tokyo">日本标准时间 (UTC+9)</option>
+            <option value="Asia/Seoul">韩国标准时间 (UTC+9)</option>
+            <option value="Australia/Sydney">澳大利亚东部时间 (UTC+10)</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="convertBtn">转换</button>
+
+      <div class="result-section">
+        <h3>转换结果</h3>
+        <div id="resultDisplay" class="result-display"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const sourceTime = document.getElementById('sourceTime');
+      const sourceTimezone = document.getElementById('sourceTimezone');
+      const targetTime = document.getElementById('targetTime');
+      const targetTimezone = document.getElementById('targetTimezone');
+      const convertBtn = document.getElementById('convertBtn');
+      const resultDisplay = document.getElementById('resultDisplay');
+
+      // 设置当前时间为默认值
+      function setCurrentTime() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        
+        sourceTime.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+      }
+
+      // 时区转换
+      function convertTime() {
+        const sourceDateTime = new Date(sourceTime.value);
+        if (isNaN(sourceDateTime.getTime())) {
+          alert('请选择有效的源时间');
+          return;
+        }
+
+        const sourceTz = sourceTimezone.value;
+        const targetTz = targetTimezone.value;
+
+        // 计算时区偏移
+        const sourceOffset = getTimezoneOffset(sourceTz);
+        const targetOffset = getTimezoneOffset(targetTz);
+        const offsetDiff = targetOffset - sourceOffset;
+
+        // 转换时间
+        const targetDateTime = new Date(sourceDateTime.getTime() + offsetDiff * 60 * 1000);
+
+        // 格式化目标时间
+        const year = targetDateTime.getFullYear();
+        const month = String(targetDateTime.getMonth() + 1).padStart(2, '0');
+        const day = String(targetDateTime.getDate()).padStart(2, '0');
+        const hours = String(targetDateTime.getHours()).padStart(2, '0');
+        const minutes = String(targetDateTime.getMinutes()).padStart(2, '0');
+        
+        targetTime.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+
+        // 显示转换结果
+        resultDisplay.innerHTML = `
+          <p><strong>源时间：</strong>${formatDateTime(sourceDateTime, sourceTz)}</p>
+          <p><strong>目标时间：</strong>${formatDateTime(targetDateTime, targetTz)}</p>
+        `;
+      }
+
+      // 获取时区偏移（分钟）
+      function getTimezoneOffset(timezone) {
+        // 简化的时区偏移映射
+        const timezoneOffsets = {
+          'Asia/Shanghai': 480,    // UTC+8
+          'America/New_York': -300, // UTC-5
+          'America/Los_Angeles': -480, // UTC-8
+          'Europe/London': 0,      // UTC+0
+          'Europe/Paris': 60,      // UTC+1
+          'Asia/Tokyo': 540,       // UTC+9
+          'Asia/Seoul': 540,       // UTC+9
+          'Australia/Sydney': 600  // UTC+10
+        };
+        return timezoneOffsets[timezone] || 0;
+      }
+
+      // 格式化日期时间
+      function formatDateTime(date, timezone) {
+        const options = {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        };
+        return date.toLocaleString('zh-CN', options) + ` (${timezone})`;
+      }
+
+      // 事件监听
+      convertBtn.addEventListener('click', convertTime);
+      sourceTime.addEventListener('change', convertTime);
+      sourceTimezone.addEventListener('change', convertTime);
+      targetTimezone.addEventListener('change', convertTime);
+
+      // 初始化
+      setCurrentTime();
+      convertTime();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('timezone-converter');
+  </script>
+</body>
+</html>

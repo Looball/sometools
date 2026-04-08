@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图片裁剪 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .crop-container {
+      position: relative;
+      display: inline-block;
+      margin: 1rem 0;
+    }
+    .crop-area {
+      position: absolute;
+      border: 2px solid #3498db;
+      background-color: rgba(52, 152, 219, 0.2);
+      cursor: move;
+    }
+    .crop-handle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background-color: #3498db;
+      border: 1px solid white;
+    }
+    .crop-handle.tl { top: -5px; left: -5px; cursor: nw-resize; }
+    .crop-handle.tr { top: -5px; right: -5px; cursor: ne-resize; }
+    .crop-handle.bl { bottom: -5px; left: -5px; cursor: sw-resize; }
+    .crop-handle.br { bottom: -5px; right: -5px; cursor: se-resize; }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>图片裁剪</h1>
+    <p class="lead">上传图片后选择裁剪区域，并下载结果。</p>
+
+    <div class="tool-card">
+      <h3>选择图片</h3>
+      <div class="form-group">
+        <input type="file" id="file" accept="image/*">
+      </div>
+      <div class="form-group">
+        <label for="format">输出格式</label>
+        <select id="format">
+          <option value="image/png">PNG</option>
+          <option value="image/jpeg">JPEG</option>
+          <option value="image/webp">WebP</option>
+        </select>
+      </div>
+      <button type="button" class="btn" id="btnCrop" disabled>裁剪并下载</button>
+    </div>
+
+    <div class="tool-card">
+      <h3>裁剪区域</h3>
+      <div class="preview-box" id="preview">
+        <span class="preview-placeholder">请选择一张图片</span>
+      </div>
+      <p id="sizeInfo" style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);"></p>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const fileEl = document.getElementById('file');
+      const formatEl = document.getElementById('format');
+      const btnCrop = document.getElementById('btnCrop');
+      const preview = document.getElementById('preview');
+      const sizeInfo = document.getElementById('sizeInfo');
+
+      let currentImage = null;
+      let cropArea = null;
+      let isDragging = false;
+      let isResizing = false;
+      let dragStart = { x: 0, y: 0 };
+      let resizeHandle = null;
+      let currentFileName = '';
+
+      // 处理文件上传
+      fileEl.addEventListener('change', function () {
+        const file = fileEl.files[0];
+        if (!file || !file.type.startsWith('image/')) {
+          preview.innerHTML = '<span class="preview-placeholder">请选择一张图片</span>';
+          sizeInfo.textContent = '';
+          btnCrop.disabled = true;
+          cropArea = null;
+          return;
+        }
+
+        currentFileName = file.name.replace(/\.[^.]+$/, '');
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+
+        img.onload = function () {
+          preview.innerHTML = `<div class="crop-container"><img id="cropImage" src="${url}" alt="裁剪预览"></div>`;
+          currentImage = document.getElementById('cropImage');
+          createCropArea();
+          sizeInfo.textContent = `原始尺寸: ${img.naturalWidth} × ${img.naturalHeight} px`;
+          btnCrop.disabled = false;
+        };
+
+        img.src = url;
+      });
+
+      // 创建裁剪区域
+      function createCropArea() {
+        if (!currentImage) return;
+
+        const container = currentImage.parentElement;
+        const imgRect = currentImage.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        // 创建裁剪区域
+        cropArea = document.createElement('div');
+        cropArea.className = 'crop-area';
+        cropArea.style.width = '200px';
+        cropArea.style.height = '200px';
+        cropArea.style.left = '50px';
+        cropArea.style.top = '50px';
+
+        // 创建调整手柄
+        const handles = ['tl', 'tr', 'bl', 'br'];
+        handles.forEach(position => {
+          const handle = document.createElement('div');
+          handle.className = `crop-handle ${position}`;
+          cropArea.appendChild(handle);
+        });
+
+        container.appendChild(cropArea);
+        initCropEvents();
+      }
+
+      // 初始化裁剪事件
+      function initCropEvents() {
+        if (!cropArea || !currentImage) return;
+
+        // 拖动裁剪区域
+        cropArea.addEventListener('mousedown', function (e) {
+          if (!e.target.classList.contains('crop-handle')) {
+            isDragging = true;
+            dragStart.x = e.clientX - parseInt(cropArea.style.left);
+            dragStart.y = e.clientY - parseInt(cropArea.style.top);
+          }
+        });
+
+        // 调整裁剪区域大小
+        const handles = cropArea.querySelectorAll('.crop-handle');
+        handles.forEach(handle => {
+          handle.addEventListener('mousedown', function (e) {
+            isResizing = true;
+            resizeHandle = handle.classList[1];
+            dragStart.x = e.clientX;
+            dragStart.y = e.clientY;
+            dragStart.width = parseInt(cropArea.style.width);
+            dragStart.height = parseInt(cropArea.style.height);
+            dragStart.left = parseInt(cropArea.style.left);
+            dragStart.top = parseInt(cropArea.style.top);
+            e.stopPropagation();
+          });
+        });
+
+        // 鼠标移动
+        document.addEventListener('mousemove', function (e) {
+          if (isDragging) {
+            const newLeft = e.clientX - dragStart.x;
+            const newTop = e.clientY - dragStart.y;
+            cropArea.style.left = `${Math.max(0, newLeft)}px`;
+            cropArea.style.top = `${Math.max(0, newTop)}px`;
+          }
+
+          if (isResizing && resizeHandle) {
+            const deltaX = e.clientX - dragStart.x;
+            const deltaY = e.clientY - dragStart.y;
+
+            let newWidth = dragStart.width;
+            let newHeight = dragStart.height;
+            let newLeft = dragStart.left;
+            let newTop = dragStart.top;
+
+            switch (resizeHandle) {
+              case 'tl':
+                newWidth = Math.max(50, dragStart.width - deltaX);
+                newHeight = Math.max(50, dragStart.height - deltaY);
+                newLeft = dragStart.left + deltaX;
+                newTop = dragStart.top + deltaY;
+                break;
+              case 'tr':
+                newWidth = Math.max(50, dragStart.width + deltaX);
+                newHeight = Math.max(50, dragStart.height - deltaY);
+                newTop = dragStart.top + deltaY;
+                break;
+              case 'bl':
+                newWidth = Math.max(50, dragStart.width - deltaX);
+                newHeight = Math.max(50, dragStart.height + deltaY);
+                newLeft = dragStart.left + deltaX;
+                break;
+              case 'br':
+                newWidth = Math.max(50, dragStart.width + deltaX);
+                newHeight = Math.max(50, dragStart.height + deltaY);
+                break;
+            }
+
+            cropArea.style.width = `${newWidth}px`;
+            cropArea.style.height = `${newHeight}px`;
+            cropArea.style.left = `${Math.max(0, newLeft)}px`;
+            cropArea.style.top = `${Math.max(0, newTop)}px`;
+          }
+        });
+
+        // 鼠标释放
+        document.addEventListener('mouseup', function () {
+          isDragging = false;
+          isResizing = false;
+          resizeHandle = null;
+        });
+      }
+
+      // 裁剪并下载图片
+      btnCrop.addEventListener('click', function () {
+        if (!currentImage || !cropArea) return;
+
+        const imgRect = currentImage.getBoundingClientRect();
+        const cropRect = cropArea.getBoundingClientRect();
+        const containerRect = currentImage.parentElement.getBoundingClientRect();
+
+        // 计算裁剪区域相对于图片的比例
+        const scaleX = currentImage.naturalWidth / imgRect.width;
+        const scaleY = currentImage.naturalHeight / imgRect.height;
+
+        const cropX = (cropRect.left - containerRect.left) * scaleX;
+        const cropY = (cropRect.top - containerRect.top) * scaleY;
+        const cropWidth = cropRect.width * scaleX;
+        const cropHeight = cropRect.height * scaleY;
+
+        // 创建画布并裁剪
+        const canvas = document.createElement('canvas');
+        canvas.width = cropWidth;
+        canvas.height = cropHeight;
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        img.onload = function () {
+          ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, cropWidth, cropHeight);
+
+          const mime = formatEl.value;
+          const ext = mime === 'image/jpeg' ? 'jpg' : mime === 'image/webp' ? 'webp' : 'png';
+
+          canvas.toBlob(function (blob) {
+            if (!blob) return;
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.download = currentFileName + '-cropped.' + ext;
+            a.href = url;
+            a.click();
+            URL.revokeObjectURL(url);
+            sizeInfo.textContent = `裁剪尺寸: ${Math.round(cropWidth)} × ${Math.round(cropHeight)} px`;
+          }, mime, 0.92);
+        };
+
+        img.src = currentImage.src;
+      });
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('image-crop');
+  </script>
+</body>
+</html>

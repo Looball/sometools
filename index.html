@@ -6,7 +6,7 @@
   <title>在线工具集</title>
   <link rel="stylesheet" href="css/common.css">
 </head>
-<script src="https://quge5.com/88/tag.min.js" data-zone="215227" async data-cfasync="false"></script>
+
 <body>
   <header class="site-header">
     <div class="container">
@@ -17,6 +17,10 @@
         <a href="categories/encode-tools.html">编解码工具</a>
         <a href="categories/text-tools.html">文本工具</a>
         <a href="categories/time-tools.html">时间与数字</a>
+        <a href="categories/dev-tools.html">开发工具</a>
+        <a href="categories/data-tools.html">数据处理</a>
+        <a href="categories/network-tools.html">网络工具</a>
+        <a href="categories/developer-tools.html">开发者工具</a>
         <button id="theme-toggle" class="theme-toggle-btn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="5"></circle>
@@ -125,6 +129,28 @@
             <p class="tool-desc">颜色选择与格式转换（RGB/HEX/HSL）</p>
           </a>
           <button class="favorite-btn" data-tool="color-tool">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="image-crop">
+          <a href="tools/image-crop.html">
+            <strong>图片裁剪</strong>
+            <p class="tool-desc">选择区域裁剪图片</p>
+          </a>
+          <button class="favorite-btn" data-tool="image-crop">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="image-filter">
+          <a href="tools/image-filter.html">
+            <strong>图片滤镜</strong>
+            <p class="tool-desc">应用各种滤镜效果</p>
+          </a>
+          <button class="favorite-btn" data-tool="image-filter">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
             </svg>
@@ -275,6 +301,118 @@
             <p class="tool-desc">设置目标日期和事件名称，查看剩余时间</p>
           </a>
           <button class="favorite-btn" data-tool="countdown">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <section class="tool-category">
+      <h2>开发工具</h2>
+      <ul class="tool-list">
+        <li data-tool="git-command">
+          <a href="tools/git-command.html">
+            <strong>Git命令生成器</strong>
+            <p class="tool-desc">根据操作生成Git命令</p>
+          </a>
+          <button class="favorite-btn" data-tool="git-command">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="api-test">
+          <a href="tools/api-test.html">
+            <strong>API测试工具</strong>
+            <p class="tool-desc">测试RESTful API接口</p>
+          </a>
+          <button class="favorite-btn" data-tool="api-test">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <section class="tool-category">
+      <h2>数据处理</h2>
+      <ul class="tool-list">
+        <li data-tool="csv-to-json">
+          <a href="tools/csv-to-json.html">
+            <strong>CSV转JSON</strong>
+            <p class="tool-desc">将CSV数据转换为JSON格式</p>
+          </a>
+          <button class="favorite-btn" data-tool="csv-to-json">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="excel-tool">
+          <a href="tools/excel-tool.html">
+            <strong>Excel工具</strong>
+            <p class="tool-desc">Excel文件处理和分析</p>
+          </a>
+          <button class="favorite-btn" data-tool="excel-tool">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <section class="tool-category">
+      <h2>网络工具</h2>
+      <ul class="tool-list">
+        <li data-tool="ip-query">
+          <a href="tools/ip-query.html">
+            <strong>IP查询</strong>
+            <p class="tool-desc">查询IP地址的地理位置和信息</p>
+          </a>
+          <button class="favorite-btn" data-tool="ip-query">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="port-check">
+          <a href="tools/port-check.html">
+            <strong>端口检测</strong>
+            <p class="tool-desc">检测服务器端口是否开放</p>
+          </a>
+          <button class="favorite-btn" data-tool="port-check">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </section>
+
+    <section class="tool-category">
+      <h2>开发者工具</h2>
+      <ul class="tool-list">
+        <li data-tool="regex-generator">
+          <a href="tools/regex-generator.html">
+            <strong>正则表达式生成器</strong>
+            <p class="tool-desc">根据需求生成正则表达式</p>
+          </a>
+          <button class="favorite-btn" data-tool="regex-generator">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+          </button>
+        </li>
+        <li data-tool="color-compare">
+          <a href="tools/color-compare.html">
+            <strong>颜色对比工具</strong>
+            <p class="tool-desc">比较颜色对比度，确保可访问性</p>
+          </a>
+          <button class="favorite-btn" data-tool="color-compare">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
             </svg>
@@ -454,6 +592,8 @@
         'image-format': { name: '格式转换', desc: '转为 PNG / WebP / JPEG', path: 'tools/image-format.html' },
         'qrcode': { name: '二维码生成', desc: '输入文本生成二维码图片', path: 'tools/qrcode.html' },
         'color-tool': { name: '颜色工具', desc: '颜色选择与格式转换（RGB/HEX/HSL）', path: 'tools/color-tool.html' },
+        'image-crop': { name: '图片裁剪', desc: '选择区域裁剪图片', path: 'tools/image-crop.html' },
+        'image-filter': { name: '图片滤镜', desc: '应用各种滤镜效果', path: 'tools/image-filter.html' },
         'base64': { name: 'Base64 编解码', desc: '支持中文与 Emoji', path: 'tools/base64.html' },
         'url-encode': { name: 'URL 编解码', desc: 'encodeURIComponent / decodeURIComponent', path: 'tools/url-encode.html' },
         'json-format': { name: 'JSON 格式化', desc: '格式化 / 压缩', path: 'tools/json-format.html' },
@@ -465,7 +605,21 @@
         'code-format': { name: '代码格式化', desc: 'JavaScript、CSS、HTML、XML 代码格式化', path: 'tools/code-format.html' },
         'random-generator': { name: '随机数据生成', desc: '生成姓名、邮箱、电话等测试数据', path: 'tools/random-generator.html' },
         'password-generator': { name: '密码生成器', desc: '生成安全、随机的密码', path: 'tools/password-generator.html' },
-        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' }
+        'text-translate': { name: '文本翻译', desc: '支持多种语言之间的文本翻译', path: 'tools/text-translate.html' },
+        'markdown-editor': { name: 'Markdown编辑器', desc: '实时预览Markdown文本的渲染效果', path: 'tools/markdown-editor.html' },
+        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' },
+        'timezone-converter': { name: '时区转换', desc: '在不同时区之间转换时间', path: 'tools/timezone-converter.html' },
+        'workday-calculator': { name: '工作日计算器', desc: '计算两个日期之间的工作日数量', path: 'tools/workday-calculator.html' },
+        'calculator': { name: '计算器', desc: '基本的算术计算器，支持加减乘除等运算', path: 'tools/calculator.html' },
+        'chart-generator': { name: '图表生成器', desc: '根据输入的数据生成不同类型的图表', path: 'tools/chart-generator.html' },
+        'git-command': { name: 'Git命令生成器', desc: '根据操作生成Git命令', path: 'tools/git-command.html' },
+        'api-test': { name: 'API测试工具', desc: '测试RESTful API接口', path: 'tools/api-test.html' },
+        'csv-to-json': { name: 'CSV转JSON', desc: '将CSV数据转换为JSON格式', path: 'tools/csv-to-json.html' },
+        'excel-tool': { name: 'Excel工具', desc: 'Excel文件处理和分析', path: 'tools/excel-tool.html' },
+        'ip-query': { name: 'IP查询', desc: '查询IP地址的地理位置和信息', path: 'tools/ip-query.html' },
+        'port-check': { name: '端口检测', desc: '检测服务器端口是否开放', path: 'tools/port-check.html' },
+        'regex-generator': { name: '正则表达式生成器', desc: '根据需求生成正则表达式', path: 'tools/regex-generator.html' },
+        'color-compare': { name: '颜色对比工具', desc: '比较颜色对比度，确保可访问性', path: 'tools/color-compare.html' }
       };
 
       recentToolsList.innerHTML = '';
@@ -528,15 +682,20 @@
         'placeholder', 'image-compress', 'image-resize', 'image-format', 'qrcode', 'color-tool',
         'base64', 'url-encode', 'json-format', 'code-format',
         'regex-test', 'text-stats', 'random-generator', 'password-generator',
-        'timestamp', 'base-convert', 'unit-converter', 'countdown'
+        'timestamp', 'base-convert', 'unit-converter', 'countdown',
+        'git-command', 'api-test', 'csv-to-json', 'excel-tool', 'ip-query', 'port-check', 'regex-generator', 'color-compare'
       ];
 
       // 工具分类
       const toolCategories = {
-        image: ['placeholder', 'image-compress', 'image-resize', 'image-format', 'qrcode', 'color-tool'],
+        image: ['placeholder', 'image-compress', 'image-resize', 'image-format', 'qrcode', 'color-tool', 'image-crop', 'image-filter'],
         encode: ['base64', 'url-encode', 'json-format', 'code-format'],
-        text: ['regex-test', 'text-stats', 'random-generator', 'password-generator'],
-        time: ['timestamp', 'base-convert', 'unit-converter', 'countdown']
+        text: ['regex-test', 'text-stats', 'random-generator', 'password-generator', 'text-translate', 'markdown-editor'],
+        time: ['timestamp', 'base-convert', 'unit-converter', 'countdown', 'timezone-converter', 'workday-calculator'],
+        dev: ['git-command', 'api-test'],
+        data: ['csv-to-json', 'excel-tool'],
+        network: ['ip-query', 'port-check'],
+        developer: ['regex-generator', 'color-compare']
       };
 
       // 计算工具权重
@@ -620,6 +779,8 @@
         'image-format': { name: '格式转换', desc: '转为 PNG / WebP / JPEG', path: 'tools/image-format.html' },
         'qrcode': { name: '二维码生成', desc: '输入文本生成二维码图片', path: 'tools/qrcode.html' },
         'color-tool': { name: '颜色工具', desc: '颜色选择与格式转换（RGB/HEX/HSL）', path: 'tools/color-tool.html' },
+        'image-crop': { name: '图片裁剪', desc: '选择区域裁剪图片', path: 'tools/image-crop.html' },
+        'image-filter': { name: '图片滤镜', desc: '应用各种滤镜效果', path: 'tools/image-filter.html' },
         'base64': { name: 'Base64 编解码', desc: '支持中文与 Emoji', path: 'tools/base64.html' },
         'url-encode': { name: 'URL 编解码', desc: 'encodeURIComponent / decodeURIComponent', path: 'tools/url-encode.html' },
         'json-format': { name: 'JSON 格式化', desc: '格式化 / 压缩', path: 'tools/json-format.html' },
@@ -628,10 +789,24 @@
         'text-stats': { name: '字数统计', desc: '字符/单词/行数/字节统计', path: 'tools/text-stats.html' },
         'random-generator': { name: '随机数据生成', desc: '生成姓名、邮箱、电话等测试数据', path: 'tools/random-generator.html' },
         'password-generator': { name: '密码生成器', desc: '生成安全、随机的密码', path: 'tools/password-generator.html' },
+        'text-translate': { name: '文本翻译', desc: '支持多种语言之间的文本翻译', path: 'tools/text-translate.html' },
+        'markdown-editor': { name: 'Markdown编辑器', desc: '实时预览Markdown文本的渲染效果', path: 'tools/markdown-editor.html' },
         'timestamp': { name: '时间戳转换', desc: '秒/毫秒与本地时间互转', path: 'tools/timestamp.html' },
         'base-convert': { name: '进制转换', desc: '二/八/十/十六进制（BigInt）', path: 'tools/base-convert.html' },
         'unit-converter': { name: '单位转换', desc: '长度、重量、体积、温度等单位转换', path: 'tools/unit-converter.html' },
-        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' }
+        'countdown': { name: '倒计时工具', desc: '设置目标日期和事件名称，查看剩余时间', path: 'tools/countdown.html' },
+        'timezone-converter': { name: '时区转换', desc: '在不同时区之间转换时间', path: 'tools/timezone-converter.html' },
+        'workday-calculator': { name: '工作日计算器', desc: '计算两个日期之间的工作日数量', path: 'tools/workday-calculator.html' },
+        'calculator': { name: '计算器', desc: '基本的算术计算器，支持加减乘除等运算', path: 'tools/calculator.html' },
+        'chart-generator': { name: '图表生成器', desc: '根据输入的数据生成不同类型的图表', path: 'tools/chart-generator.html' },
+        'git-command': { name: 'Git命令生成器', desc: '根据操作生成Git命令', path: 'tools/git-command.html' },
+        'api-test': { name: 'API测试工具', desc: '测试RESTful API接口', path: 'tools/api-test.html' },
+        'csv-to-json': { name: 'CSV转JSON', desc: '将CSV数据转换为JSON格式', path: 'tools/csv-to-json.html' },
+        'excel-tool': { name: 'Excel工具', desc: 'Excel文件处理和分析', path: 'tools/excel-tool.html' },
+        'ip-query': { name: 'IP查询', desc: '查询IP地址的地理位置和信息', path: 'tools/ip-query.html' },
+        'port-check': { name: '端口检测', desc: '检测服务器端口是否开放', path: 'tools/port-check.html' },
+        'regex-generator': { name: '正则表达式生成器', desc: '根据需求生成正则表达式', path: 'tools/regex-generator.html' },
+        'color-compare': { name: '颜色对比工具', desc: '比较颜色对比度，确保可访问性', path: 'tools/color-compare.html' }
       };
 
       recommendedToolsList.innerHTML = '';

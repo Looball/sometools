@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSV转JSON - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>CSV转JSON</h1>
+    <p class="lead">将CSV格式数据转换为JSON格式，支持自定义分隔符和编码。</p>
+
+    <div class="tool-card">
+      <h3>CSV输入</h3>
+      <div class="form-group">
+        <label for="csvInput">CSV数据</label>
+        <textarea id="csvInput" class="w-full" rows="10" placeholder="name,age,city\nJohn,25,New York\nJane,30,London"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="delimiter">分隔符</label>
+          <select id="delimiter">
+            <option value=",">逗号 (,)</option>
+            <option value=";">分号 (;)</option>
+            <option value="\t">制表符 (Tab)</option>
+            <option value="|">竖线 (|)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="hasHeader"> 第一行是表头
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="fileInput">或上传CSV文件</label>
+        <input type="file" id="fileInput" accept=".csv">
+      </div>
+
+      <button type="button" class="btn" id="convertBtn">转换</button>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="jsonOutput">JSON输出</label>
+        <textarea id="jsonOutput" class="w-full" rows="10" readonly placeholder="转换后的JSON将显示在这里"></textarea>
+      </div>
+      <div class="form-row">
+        <button type="button" class="btn btn-secondary" id="copyBtn">复制JSON</button>
+        <button type="button" class="btn btn-secondary" id="downloadBtn">下载JSON</button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const csvInput = document.getElementById('csvInput');
+      const delimiter = document.getElementById('delimiter');
+      const hasHeader = document.getElementById('hasHeader');
+      const fileInput = document.getElementById('fileInput');
+      const convertBtn = document.getElementById('convertBtn');
+      const jsonOutput = document.getElementById('jsonOutput');
+      const copyBtn = document.getElementById('copyBtn');
+      const downloadBtn = document.getElementById('downloadBtn');
+
+      // 从文件读取CSV
+      fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            csvInput.value = e.target.result;
+          };
+          reader.readAsText(file);
+        }
+      });
+
+      // CSV转JSON
+      function csvToJson() {
+        const csv = csvInput.value;
+        if (!csv) {
+          alert('请输入CSV数据或上传CSV文件');
+          return;
+        }
+
+        const lines = csv.trim().split('\n');
+        const separator = delimiter.value === '\t' ? '\t' : delimiter.value;
+        const isHeader = hasHeader.checked;
+
+        let headers = [];
+        let result = [];
+
+        if (isHeader && lines.length > 0) {
+          headers = lines[0].split(separator).map(header => header.trim());
+          lines.shift();
+        }
+
+        lines.forEach(line => {
+          if (line.trim()) {
+            const values = line.split(separator).map(value => value.trim());
+            const obj = {};
+            
+            if (isHeader) {
+              values.forEach((value, index) => {
+                obj[headers[index] || `field${index}`] = value;
+              });
+            } else {
+              values.forEach((value, index) => {
+                obj[`field${index}`] = value;
+              });
+            }
+            
+            result.push(obj);
+          }
+        });
+
+        jsonOutput.value = JSON.stringify(result, null, 2);
+      }
+
+      // 复制JSON
+      function copyJson() {
+        jsonOutput.select();
+        document.execCommand('copy');
+        alert('JSON已复制到剪贴板');
+      }
+
+      // 下载JSON
+      function downloadJson() {
+        const json = jsonOutput.value;
+        if (!json) {
+          alert('请先转换CSV数据');
+          return;
+        }
+
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json';
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // 事件监听
+      convertBtn.addEventListener('click', csvToJson);
+      copyBtn.addEventListener('click', copyJson);
+      downloadBtn.addEventListener('click', downloadJson);
+
+      // 初始状态
+      hasHeader.checked = true;
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('csv-to-json');
+  </script>
+</body>
+</html>

@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>图表生成器 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+  <style>
+    .chart-container {
+      position: relative;
+      height: 400px;
+      margin: 1rem 0;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    #chartCanvas {
+      width: 100%;
+      height: 100%;
+    }
+    .data-input {
+      margin: 1rem 0;
+    }
+    .data-row {
+      display: flex;
+      gap: 0.5rem;
+      margin: 0.5rem 0;
+    }
+    .data-row input {
+      flex: 1;
+    }
+    .add-data-btn {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>图表生成器</h1>
+    <p class="lead">根据输入的数据生成不同类型的图表。</p>
+
+    <div class="tool-card">
+      <div class="form-group">
+        <label for="chartType">图表类型</label>
+        <select id="chartType" class="w-full">
+          <option value="bar">柱状图</option>
+          <option value="line">折线图</option>
+          <option value="pie">饼图</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="chartTitle">图表标题</label>
+        <input type="text" id="chartTitle" class="w-full" value="数据图表">
+      </div>
+
+      <div class="data-input">
+        <h3>数据输入</h3>
+        <div id="dataRows">
+          <div class="data-row">
+            <input type="text" class="label-input" placeholder="标签" value="类别1">
+            <input type="number" class="value-input" placeholder="值" value="10">
+          </div>
+          <div class="data-row">
+            <input type="text" class="label-input" placeholder="标签" value="类别2">
+            <input type="number" class="value-input" placeholder="值" value="20">
+          </div>
+          <div class="data-row">
+            <input type="text" class="label-input" placeholder="标签" value="类别3">
+            <input type="number" class="value-input" placeholder="值" value="15">
+          </div>
+          <div class="data-row">
+            <input type="text" class="label-input" placeholder="标签" value="类别4">
+            <input type="number" class="value-input" placeholder="值" value="25">
+          </div>
+        </div>
+        <button type="button" class="btn add-data-btn" id="addDataBtn">添加数据行</button>
+      </div>
+
+      <button type="button" class="btn" id="generateBtn">生成图表</button>
+
+      <div class="chart-container">
+        <canvas id="chartCanvas"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const chartType = document.getElementById('chartType');
+      const chartTitle = document.getElementById('chartTitle');
+      const dataRows = document.getElementById('dataRows');
+      const addDataBtn = document.getElementById('addDataBtn');
+      const generateBtn = document.getElementById('generateBtn');
+      const chartCanvas = document.getElementById('chartCanvas');
+      const ctx = chartCanvas.getContext('2d');
+
+      // 设置Canvas尺寸
+      function resizeCanvas() {
+        const container = chartCanvas.parentElement;
+        chartCanvas.width = container.clientWidth;
+        chartCanvas.height = container.clientHeight;
+      }
+
+      // 添加数据行
+      function addDataRow() {
+        const row = document.createElement('div');
+        row.className = 'data-row';
+        row.innerHTML = `
+          <input type="text" class="label-input" placeholder="标签">
+          <input type="number" class="value-input" placeholder="值">
+        `;
+        dataRows.appendChild(row);
+      }
+
+      // 获取数据
+      function getData() {
+        const labels = [];
+        const values = [];
+        const rows = dataRows.querySelectorAll('.data-row');
+        
+        rows.forEach(row => {
+          const label = row.querySelector('.label-input').value.trim();
+          const value = parseFloat(row.querySelector('.value-input').value);
+          
+          if (label && !isNaN(value)) {
+            labels.push(label);
+            values.push(value);
+          }
+        });
+        
+        return { labels, values };
+      }
+
+      // 生成颜色
+      function generateColors(count) {
+        const colors = [];
+        const hueStep = 360 / count;
+        
+        for (let i = 0; i < count; i++) {
+          const hue = i * hueStep;
+          colors.push(`hsl(${hue}, 70%, 60%)`);
+        }
+        
+        return colors;
+      }
+
+      // 绘制柱状图
+      function drawBarChart(data) {
+        const { labels, values } = data;
+        const colors = generateColors(labels.length);
+        
+        const width = chartCanvas.width;
+        const height = chartCanvas.height;
+        const padding = 50;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // 绘制标题
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.fillText(chartTitle.value, width / 2, padding / 2);
+        
+        // 计算最大值
+        const maxValue = Math.max(...values);
+        
+        // 绘制坐标轴
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, height - padding);
+        ctx.lineTo(width - padding, height - padding);
+        ctx.stroke();
+        
+        // 绘制柱状图
+        const barWidth = chartWidth / labels.length * 0.8;
+        const barSpacing = chartWidth / labels.length * 0.2;
+        
+        labels.forEach((label, index) => {
+          const value = values[index];
+          const barHeight = (value / maxValue) * chartHeight;
+          const x = padding + index * (barWidth + barSpacing);
+          const y = height - padding - barHeight;
+          
+          // 绘制柱子
+          ctx.fillStyle = colors[index];
+          ctx.fillRect(x, y, barWidth, barHeight);
+          
+          // 绘制标签
+          ctx.font = '12px Arial';
+          ctx.fillStyle = '#333';
+          ctx.textAlign = 'center';
+          ctx.fillText(label, x + barWidth / 2, height - padding + 15);
+          
+          // 绘制值
+          ctx.fillText(value, x + barWidth / 2, y - 5);
+        });
+      }
+
+      // 绘制折线图
+      function drawLineChart(data) {
+        const { labels, values } = data;
+        const colors = generateColors(1);
+        
+        const width = chartCanvas.width;
+        const height = chartCanvas.height;
+        const padding = 50;
+        const chartWidth = width - padding * 2;
+        const chartHeight = height - padding * 2;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // 绘制标题
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.fillText(chartTitle.value, width / 2, padding / 2);
+        
+        // 计算最大值
+        const maxValue = Math.max(...values);
+        
+        // 绘制坐标轴
+        ctx.beginPath();
+        ctx.moveTo(padding, padding);
+        ctx.lineTo(padding, height - padding);
+        ctx.lineTo(width - padding, height - padding);
+        ctx.stroke();
+        
+        // 绘制折线
+        ctx.beginPath();
+        ctx.strokeStyle = colors[0];
+        ctx.lineWidth = 2;
+        
+        labels.forEach((label, index) => {
+          const value = values[index];
+          const x = padding + (index / (labels.length - 1)) * chartWidth;
+          const y = height - padding - (value / maxValue) * chartHeight;
+          
+          if (index === 0) {
+            ctx.moveTo(x, y);
+          } else {
+            ctx.lineTo(x, y);
+          }
+          
+          // 绘制数据点
+          ctx.fillStyle = colors[0];
+          ctx.beginPath();
+          ctx.arc(x, y, 4, 0, Math.PI * 2);
+          ctx.fill();
+          
+          // 绘制标签
+          ctx.font = '12px Arial';
+          ctx.fillStyle = '#333';
+          ctx.textAlign = 'center';
+          ctx.fillText(label, x, height - padding + 15);
+          
+          // 绘制值
+          ctx.fillText(value, x, y - 10);
+        });
+        
+        ctx.stroke();
+      }
+
+      // 绘制饼图
+      function drawPieChart(data) {
+        const { labels, values } = data;
+        const colors = generateColors(labels.length);
+        
+        const width = chartCanvas.width;
+        const height = chartCanvas.height;
+        const centerX = width / 2;
+        const centerY = height / 2;
+        const radius = Math.min(centerX, centerY) - 50;
+        
+        ctx.clearRect(0, 0, width, height);
+        
+        // 绘制标题
+        ctx.font = '18px Arial';
+        ctx.fillStyle = '#333';
+        ctx.textAlign = 'center';
+        ctx.fillText(chartTitle.value, centerX, 30);
+        
+        // 计算总和
+        const total = values.reduce((sum, value) => sum + value, 0);
+        
+        // 绘制饼图
+        let startAngle = 0;
+        
+        labels.forEach((label, index) => {
+          const value = values[index];
+          const sliceAngle = (value / total) * Math.PI * 2;
+          
+          // 绘制扇形
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+          ctx.closePath();
+          ctx.fillStyle = colors[index];
+          ctx.fill();
+          ctx.stroke();
+          
+          // 绘制标签和百分比
+          const labelX = centerX + (radius + 30) * Math.cos(startAngle + sliceAngle / 2);
+          const labelY = centerY + (radius + 30) * Math.sin(startAngle + sliceAngle / 2);
+          
+          ctx.font = '12px Arial';
+          ctx.fillStyle = '#333';
+          ctx.textAlign = 'center';
+          ctx.fillText(`${label}: ${value}`, labelX, labelY);
+          
+          startAngle += sliceAngle;
+        });
+      }
+
+      // 生成图表
+      function generateChart() {
+        const data = getData();
+        const type = chartType.value;
+        
+        if (data.labels.length === 0) {
+          alert('请输入数据');
+          return;
+        }
+        
+        resizeCanvas();
+        
+        switch (type) {
+          case 'bar':
+            drawBarChart(data);
+            break;
+          case 'line':
+            drawLineChart(data);
+            break;
+          case 'pie':
+            drawPieChart(data);
+            break;
+        }
+      }
+
+      // 事件监听
+      addDataBtn.addEventListener('click', addDataRow);
+      generateBtn.addEventListener('click', generateChart);
+      chartType.addEventListener('change', generateChart);
+      chartTitle.addEventListener('input', generateChart);
+      window.addEventListener('resize', generateChart);
+
+      // 初始生成图表
+      generateChart();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('chart-generator');
+  </script>
+</body>
+</html>

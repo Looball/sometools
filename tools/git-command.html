@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Git命令生成器 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>Git命令生成器</h1>
+    <p class="lead">根据操作生成Git命令，帮助您更高效地使用Git。</p>
+
+    <div class="tool-card">
+      <h3>Git操作</h3>
+      <div class="form-group">
+        <label for="gitOperation">选择操作</label>
+        <select id="gitOperation" class="w-full">
+          <option value="init">初始化仓库</option>
+          <option value="clone">克隆仓库</option>
+          <option value="add">添加文件</option>
+          <option value="commit">提交更改</option>
+          <option value="push">推送更改</option>
+          <option value="pull">拉取更改</option>
+          <option value="branch">分支操作</option>
+          <option value="merge">合并分支</option>
+          <option value="status">查看状态</option>
+          <option value="log">查看日志</option>
+        </select>
+      </div>
+
+      <!-- 克隆仓库选项 -->
+      <div id="cloneOptions" class="operation-options">
+        <div class="form-group">
+          <label for="cloneUrl">仓库URL</label>
+          <input type="text" id="cloneUrl" placeholder="https://github.com/username/repo.git">
+        </div>
+        <div class="form-group">
+          <label for="cloneDir">目标目录（可选）</label>
+          <input type="text" id="cloneDir" placeholder="本地目录名称">
+        </div>
+      </div>
+
+      <!-- 添加文件选项 -->
+      <div id="addOptions" class="operation-options">
+        <div class="form-group">
+          <label for="addFiles">文件路径</label>
+          <input type="text" id="addFiles" placeholder=". 或 文件名">
+        </div>
+      </div>
+
+      <!-- 提交更改选项 -->
+      <div id="commitOptions" class="operation-options">
+        <div class="form-group">
+          <label for="commitMessage">提交信息</label>
+          <input type="text" id="commitMessage" placeholder="提交信息">
+        </div>
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="commitAll"> 提交所有更改
+          </label>
+        </div>
+      </div>
+
+      <!-- 推送更改选项 -->
+      <div id="pushOptions" class="operation-options">
+        <div class="form-group">
+          <label for="pushRemote">远程仓库</label>
+          <input type="text" id="pushRemote" value="origin">
+        </div>
+        <div class="form-group">
+          <label for="pushBranch">分支</label>
+          <input type="text" id="pushBranch" value="main">
+        </div>
+      </div>
+
+      <!-- 拉取更改选项 -->
+      <div id="pullOptions" class="operation-options">
+        <div class="form-group">
+          <label for="pullRemote">远程仓库</label>
+          <input type="text" id="pullRemote" value="origin">
+        </div>
+        <div class="form-group">
+          <label for="pullBranch">分支</label>
+          <input type="text" id="pullBranch" value="main">
+        </div>
+      </div>
+
+      <!-- 分支操作选项 -->
+      <div id="branchOptions" class="operation-options">
+        <div class="form-group">
+          <label for="branchAction">分支操作</label>
+          <select id="branchAction">
+            <option value="create">创建分支</option>
+            <option value="switch">切换分支</option>
+            <option value="delete">删除分支</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="branchName">分支名称</label>
+          <input type="text" id="branchName" placeholder="分支名称">
+        </div>
+      </div>
+
+      <!-- 合并分支选项 -->
+      <div id="mergeOptions" class="operation-options">
+        <div class="form-group">
+          <label for="mergeBranch">要合并的分支</label>
+          <input type="text" id="mergeBranch" placeholder="分支名称">
+        </div>
+      </div>
+
+      <button type="button" class="btn" id="generateBtn">生成命令</button>
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="gitCommand">生成的Git命令</label>
+        <textarea id="gitCommand" class="w-full" readonly placeholder="生成的Git命令将显示在这里"></textarea>
+      </div>
+      <button type="button" class="btn btn-secondary" id="copyBtn">复制命令</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const gitOperation = document.getElementById('gitOperation');
+      const operationOptions = document.querySelectorAll('.operation-options');
+      const generateBtn = document.getElementById('generateBtn');
+      const gitCommand = document.getElementById('gitCommand');
+      const copyBtn = document.getElementById('copyBtn');
+
+      // 显示/隐藏操作选项
+      function toggleOptions() {
+        const selectedOperation = gitOperation.value;
+        operationOptions.forEach(option => {
+          option.style.display = 'none';
+        });
+        document.getElementById(`${selectedOperation}Options`).style.display = 'block';
+      }
+
+      // 生成Git命令
+      function generateGitCommand() {
+        const operation = gitOperation.value;
+        let command = '';
+
+        switch (operation) {
+          case 'init':
+            command = 'git init';
+            break;
+          case 'clone':
+            const cloneUrl = document.getElementById('cloneUrl').value;
+            const cloneDir = document.getElementById('cloneDir').value;
+            command = `git clone ${cloneUrl}${cloneDir ? ' ' + cloneDir : ''}`;
+            break;
+          case 'add':
+            const addFiles = document.getElementById('addFiles').value || '.';
+            command = `git add ${addFiles}`;
+            break;
+          case 'commit':
+            const commitMessage = document.getElementById('commitMessage').value;
+            const commitAll = document.getElementById('commitAll').checked;
+            command = `git commit${commitAll ? ' -a' : ''} -m "${commitMessage}"`;
+            break;
+          case 'push':
+            const pushRemote = document.getElementById('pushRemote').value;
+            const pushBranch = document.getElementById('pushBranch').value;
+            command = `git push ${pushRemote} ${pushBranch}`;
+            break;
+          case 'pull':
+            const pullRemote = document.getElementById('pullRemote').value;
+            const pullBranch = document.getElementById('pullBranch').value;
+            command = `git pull ${pullRemote} ${pullBranch}`;
+            break;
+          case 'branch':
+            const branchAction = document.getElementById('branchAction').value;
+            const branchName = document.getElementById('branchName').value;
+            switch (branchAction) {
+              case 'create':
+                command = `git branch ${branchName}`;
+                break;
+              case 'switch':
+                command = `git checkout ${branchName}`;
+                break;
+              case 'delete':
+                command = `git branch -d ${branchName}`;
+                break;
+            }
+            break;
+          case 'merge':
+            const mergeBranch = document.getElementById('mergeBranch').value;
+            command = `git merge ${mergeBranch}`;
+            break;
+          case 'status':
+            command = 'git status';
+            break;
+          case 'log':
+            command = 'git log';
+            break;
+        }
+
+        gitCommand.value = command;
+      }
+
+      // 复制命令到剪贴板
+      function copyCommand() {
+        gitCommand.select();
+        document.execCommand('copy');
+        alert('命令已复制到剪贴板');
+      }
+
+      // 事件监听
+      gitOperation.addEventListener('change', toggleOptions);
+      generateBtn.addEventListener('click', generateGitCommand);
+      copyBtn.addEventListener('click', copyCommand);
+
+      // 初始状态
+      toggleOptions();
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('git-command');
+  </script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>文本翻译 - 在线工具集</title>
+  <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a href="../index.html" class="logo">在线工具集</a>
+      <nav class="nav">
+        <a href="../index.html">首页</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main container tool-page">
+    <a href="../index.html" class="back">← 返回首页</a>
+    <h1>文本翻译</h1>
+    <p class="lead">支持多种语言之间的文本翻译。</p>
+
+    <div class="tool-card">
+      <h3>翻译设置</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="sourceLang">源语言</label>
+          <select id="sourceLang">
+            <option value="auto">自动检测</option>
+            <option value="zh">中文</option>
+            <option value="en">英文</option>
+            <option value="ja">日文</option>
+            <option value="ko">韩文</option>
+            <option value="fr">法文</option>
+            <option value="de">德文</option>
+            <option value="es">西班牙文</option>
+            <option value="ru">俄文</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="targetLang">目标语言</label>
+          <select id="targetLang">
+            <option value="zh">中文</option>
+            <option value="en">英文</option>
+            <option value="ja">日文</option>
+            <option value="ko">韩文</option>
+            <option value="fr">法文</option>
+            <option value="de">德文</option>
+            <option value="es">西班牙文</option>
+            <option value="ru">俄文</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>输入文本</h3>
+      <div class="form-group">
+        <textarea id="sourceText" class="w-full" rows="6" placeholder="请输入要翻译的文本"></textarea>
+      </div>
+
+      <button type="button" class="btn" id="translateBtn">翻译</button>
+
+      <h3>翻译结果</h3>
+      <div class="form-group">
+        <textarea id="targetText" class="w-full" rows="6" readonly placeholder="翻译结果将显示在这里"></textarea>
+      </div>
+
+      <button type="button" class="btn btn-secondary" id="copyBtn">复制结果</button>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>纯前端工具，数据仅在本机处理，不经过服务器。</p>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const sourceLang = document.getElementById('sourceLang');
+      const targetLang = document.getElementById('targetLang');
+      const sourceText = document.getElementById('sourceText');
+      const targetText = document.getElementById('targetText');
+      const translateBtn = document.getElementById('translateBtn');
+      const copyBtn = document.getElementById('copyBtn');
+
+      // 翻译文本
+      async function translateText() {
+        const text = sourceText.value.trim();
+        if (!text) {
+          alert('请输入要翻译的文本');
+          return;
+        }
+
+        const srcLang = sourceLang.value;
+        const tgtLang = targetLang.value;
+
+        try {
+          // 使用 LibreTranslate API
+          const response = await fetch('https://translate.argosopentech.com/translate', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              q: text,
+              source: srcLang,
+              target: tgtLang,
+              format: 'text'
+            })
+          });
+
+          if (!response.ok) {
+            throw new Error('翻译失败');
+          }
+
+          const data = await response.json();
+          targetText.value = data.translatedText;
+        } catch (error) {
+          alert('翻译失败，请检查网络连接');
+          console.error('Translation error:', error);
+        }
+      }
+
+      // 复制结果
+      function copyResult() {
+        targetText.select();
+        document.execCommand('copy');
+        alert('翻译结果已复制到剪贴板');
+      }
+
+      // 事件监听
+      translateBtn.addEventListener('click', translateText);
+      copyBtn.addEventListener('click', copyResult);
+
+      // 回车键翻译
+      sourceText.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && e.ctrlKey) {
+          translateText();
+        }
+      });
+    })();
+
+    // 记录工具使用历史
+    function recordToolUsage(toolId) {
+      const recentTools = JSON.parse(localStorage.getItem('recentTools') || '[]');
+      // 移除已存在的工具，将新使用的工具添加到开头
+      const updatedTools = recentTools.filter(id => id !== toolId);
+      updatedTools.unshift(toolId);
+      // 只保留最近5个使用的工具
+      const limitedTools = updatedTools.slice(0, 5);
+      localStorage.setItem('recentTools', JSON.stringify(limitedTools));
+    }
+
+    // 记录当前工具的使用
+    recordToolUsage('text-translate');
+  </script>
+</body>
+</html>
